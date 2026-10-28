@@ -35,7 +35,7 @@
       <p class="muted" style="font-size:.9rem">Вземи отпуск ${range}. Почиваш от ${BG.fmt(b.from)} до ${BG.fmt(b.to)}.</p></article>`;
   }
 
-  const legend = `<div class="legend"><span><i class="sw dayoff"></i>Почивен ден</span><span><i class="sw vac"></i>Ваканция</span><span><i class="sw ring"></i>Ваканция и почивен ден (контур)</span><span><i class="kd church"></i>Църковен празник (точка)</span><span><i class="kd name"></i>Имен ден (точка)</span><span><i class="kd clock"></i>Смяна на часа – лятно/зимно време (празно кръгче)</span><span><i class="kd equinox"></i>Равноденствие (празно кръгче)</span></div>`;
+  const legend = `<div class="legend"><span><i class="sw dayoff"></i>Почивен ден</span><span><i class="sw idea"></i>Ден за отпуск (мост)</span><span><i class="sw vac"></i>Ваканция</span><span><i class="sw ring"></i>Ваканция и почивен ден (контур)</span><span><i class="kd church"></i>Църковен празник (точка)</span><span><i class="kd name"></i>Имен ден (точка)</span><span><i class="kd clock"></i>Смяна на часа – лятно/зимно време (празно кръгче)</span><span><i class="kd equinox"></i>Равноденствие (празно кръгче)</span></div>`;
 
   // Месечен календар с цветове и точки; clickable=true показва подробности
   function monthCal(el, y, m, opts) {
@@ -47,14 +47,15 @@
     Object.assign(vacKeys, BG.year(y).school);
     CT.VAC.forEach((v) => { for (let d = v.from; d <= v.to; d = BG.addDays(d, 1)) vacKeys[BG.key(d)] = v.name; });
     const first = new Date(y, m, 1), lead = (first.getDay() + 6) % 7, n = new Date(y, m + 1, 0).getDate();
+    const ideaKeys = new Set(BG.year(y).ideas.flatMap((i) => i.leave.map(BG.key)));
     const todayK = BG.key(new Date());
     let cells = ['П', 'В', 'С', 'Ч', 'П', 'С', 'Н'].map((w, i) => `<div class="wd${i > 4 ? ' we' : ''}">${w}</div>`).join('');
     for (let i = 0; i < lead; i++) cells += '<div class="blank"></div>';
     for (let d = 1; d <= n; d++) {
       const dt = new Date(y, m, d), k = BG.key(dt), list = byKey[k] || [];
-      const off = !!BG.offName(dt), we = BG.isWeekend(dt), vac = !!vacKeys[k] && !we && !off, vr = !!vacKeys[k] && (we || off);
+      const off = !!BG.offName(dt), we = BG.isWeekend(dt), vac = !!vacKeys[k] && !we && !off, vr = !!vacKeys[k] && (we || off), idea = ideaKeys.has(k) && !off && !we;
       const dots = [...new Set(list.flatMap((e) => e.types).filter((t) => t === 'church' || t === 'name' || t === 'clock' || t === 'equinox'))];
-      cells += `<button type="button" class="day${off ? ' off' : ''}${we ? ' we' : ''}${vac ? ' vac' : ''}${vr ? ' vr' : ''}${k === todayK ? ' today' : ''}" data-k="${k}" aria-label="${d} ${BG.MONTHS_GEN[m]}"><span class="num">${d}</span><span class="dots">${dots.slice(0, 3).map((t) => `<i class="${t}"></i>`).join('')}</span></button>`;
+      cells += `<button type="button" class="day${off ? ' off' : ''}${we ? ' we' : ''}${vac ? ' vac' : ''}${vr ? ' vr' : ''}${idea ? ' idea' : ''}${k === todayK ? ' today' : ''}" data-k="${k}" aria-label="${d} ${BG.MONTHS_GEN[m]}"><span class="num">${d}</span><span class="dots">${dots.slice(0, 3).map((t) => `<i class="${t}"></i>`).join('')}</span></button>`;
     }
     el.innerHTML = `<div class="cal">${cells}</div>`;
     if (!opts.clickable) return;
@@ -65,6 +66,7 @@
       const o = BG.offName(dt); if (o && !list.some((e) => e.title === o)) parts.push(`<div class="evt">${tag('dayoff')}<div class="tx"><strong>${U.esc(o)}</strong></div></div>`);
       if (BG.isWeekend(dt) && !o) parts.push(`<div class="evt">${tag('dayoff')}<div class="tx"><strong>${BG.WEEKDAYS[dt.getDay()][0].toUpperCase() + BG.WEEKDAYS[dt.getDay()].slice(1)} – почивен ден</strong></div></div>`);
       list.forEach((e) => parts.push(`<div class="evt">${tag(primaryType(e))}<div class="tx"><strong>${U.esc(e.title)}</strong>${e.names ? `<span>${e.names.slice(0, 6).join(', ')}</span>` : ''}</div></div>`));
+      if (ideaKeys.has(k) && !BG.offName(dt) && !BG.isWeekend(dt)) parts.push(`<div class="evt"><span class="tag national">${U.ICON.heart}Мост</span><div class="tx"><strong>Ден за отпуск</strong><span>Свързва почивни дни и дава по-дълга почивка</span></div></div>`);
       if (vacKeys[k]) parts.push(`<div class="evt">${tag('vac')}<div class="tx"><strong>${U.esc(vacKeys[k])}</strong></div></div>`);
       det.innerHTML = `<h4>${dt.getDate()} ${BG.MONTHS_GEN[dt.getMonth()]}, ${BG.WEEKDAYS[dt.getDay()]}</h4>${parts.join('') || '<p class="muted">Няма отбелязани събития.</p>'}`;
       el.querySelectorAll('.day').forEach((b) => b.classList.toggle('sel', b.dataset.k === k));
@@ -75,5 +77,26 @@
     show(opts.select || (BG.key(new Date()).slice(0, 7) === y + '-' + BG.pad(m + 1) ? todayK : y + '-' + BG.pad(m + 1) + '-01'));
   }
 
-  window.W = { tag, eventCard, strip, bridgeCard, legend, monthCal, TYPE_LABEL, primaryType };
+  // Цялостен календар за година (всички месеци) – вмъква се на всяка страница
+  const yearCalHtml = () => `<section aria-labelledby="cal-h" id="year-cal"><div class="sec-h"><h2 id="cal-h">Календар <span id="cal-year"></span></h2>${legend}</div>
+    <div class="cal-head"><button class="ibtn" id="prev" aria-label="Предишна година">${U.ICON.left}</button><span class="muted">Изберете ден за подробности</span><button class="ibtn" id="next" aria-label="Следваща година">${U.ICON.right}</button></div>
+    <div class="year-grid" id="year-grid"></div></section>`;
+  function initYearCal(year) {
+    const now = new Date();
+    const first = BG.YEARS[0], last = BG.YEARS[BG.YEARS.length - 1];
+    let y = Math.min(last, Math.max(first, year || now.getFullYear()));
+    const draw = () => {
+      document.getElementById('cal-year').textContent = y;
+      document.getElementById('year-grid').innerHTML = BG.MONTHS.map((name, i) => `<section class="panel month-card${y === now.getFullYear() && i === now.getMonth() ? ' current' : ''}"><h3>${name}</h3><div id="mc${i}"></div><div class="day-detail" id="md${i}" aria-live="polite"></div></section>`).join('');
+      BG.MONTHS.forEach((_, i) => monthCal(document.getElementById('mc' + i), y, i, {
+        clickable: true, noInitial: true, detail: document.getElementById('md' + i),
+        onSelect: () => BG.MONTHS.forEach((__, j) => { if (j !== i) { document.getElementById('md' + j).innerHTML = ''; document.querySelectorAll('#mc' + j + ' .day.sel').forEach((b) => b.classList.remove('sel')); } }),
+      }));
+    };
+    document.getElementById('prev').onclick = () => { if (y > first) { y--; draw(); } };
+    document.getElementById('next').onclick = () => { if (y < last) { y++; draw(); } };
+    draw();
+  }
+
+  window.W = { yearCalHtml, initYearCal, tag, eventCard, strip, bridgeCard, legend, monthCal, TYPE_LABEL, primaryType };
 })();

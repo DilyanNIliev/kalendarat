@@ -344,3 +344,6 @@ table.tbl { width: 100%; border-collapse: collapse; font-size: .95rem; }
 .kd.equinox, .dots i.equinox { border-color: var(--link); }
 .cal button.day.sel .dots i.clock, .cal button.day.sel .dots i.equinox { background: transparent; border-color: var(--on-primary); }
 .sw.ring, .kd { flex: none; }
+
+.cal button.day.idea { background: var(--gold-soft); color: var(--ink); }
+.sw.idea { background: var(--gold-soft); border: 1.5px solid var(--gold); }

@@ -23,6 +23,7 @@
 
   UI.mount('names', {
     title: `Имен ден на ${name} – ${BG.fmt(h.date)} ${h.date.getFullYear()}`,
+    year: h.date.getFullYear(),
     main: `${crumbs}
     <header class="hero"><h1>Имен ден на ${UI.esc(name)}</h1>
       <div class="date-line"><span class="date-pill num">${I.name}${BG.fmt(h.date)} ${h.date.getFullYear()}</span><span class="muted">${BG.WEEKDAYS[h.date.getDay()]} · ${UI.daysAway(h.days)}</span></div>

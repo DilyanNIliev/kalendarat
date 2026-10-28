@@ -105,7 +105,7 @@
   const ADS = false; // включете, когато добавите реклами
   const adBlock = (cls, label) => !ADS ? '' : `<aside class="ad ${cls}" aria-label="Реклама"><span class="ad-label">${label}</span></aside>`;
 
-  function mount(active, { title, main, aside }) {
+  function mount(active, { title, main, aside, year, cal }) {
     initTheme();
     if (title) document.title = title;
     const navLinks = NAV.map(([h, t, id]) => `<a href="${h}"${active === id ? ' aria-current="page"' : ''}>${t}</a>`).join('');
@@ -140,6 +140,7 @@
       </div></footer>
       ${ADS ? `<aside class="ad ad-sticky" id="sticky" aria-label="Реклама"><span class="ad-label">Лепкава реклама 320×50</span><button aria-label="Затвори рекламата" id="sx">${ICON.close}</button></aside>` : ''}`;
     keep.forEach((e) => document.body.appendChild(e));
+    if (cal !== false && window.W) { document.getElementById('main').insertAdjacentHTML('beforeend', W.yearCalHtml()); W.initYearCal(year); }
     document.getElementById('theme').onclick = toggleSkin;
     document.getElementById('mode').onclick = toggleMode;
     applyMode(); updateSkinBtn(); applyDecor();

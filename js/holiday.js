@@ -20,6 +20,7 @@
 
   UI.mount('praznici', {
     title: `${def.title} ${y}`,
+    year: y,
     main: `<div class="crumbs"><a href="index.html">Начало</a> / <a href="praznici.html">Празници</a> / ${UI.esc(def.title)}</div>
     <header class="hero"><h1>${UI.esc(def.title)} ${y}</h1>
       <div class="date-line"><span class="date-pill num">${I[def.type === 'church' ? 'church' : 'dayoff']}${date.getDate()} ${BG.MONTHS_GEN[date.getMonth()]} ${y}</span><span class="muted">${wd[0].toUpperCase() + wd.slice(1)} · ${UI.daysAway(Math.round((date - ND.startOfDay(now)) / 864e5)).replace('след -', 'преди ')}</span></div>
