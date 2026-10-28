@@ -13,7 +13,7 @@
   const from = BG.addDays(a, -2), to = BG.addDays(b, 2);
   const names = [...new Set(ND.onDate(date).flatMap((e) => e.names))];
   const wishes = (CT.WISHES[def.wishKey] || CT.WISHES.nacionalen).map((w) => w.replace(/\{name\}/g, ''));
-  const text = `${def.title} ${y} е на ${BG.fmt(date)}. Календарът`;
+  const text = `${def.title} ${y} е на ${BG.fmt(date)}. kalendarat.com`;
   const wishCard = (w) => `<div class="wish"><p>${UI.esc(w)}</p><div class="share-row"><button class="btn ghost sm" data-copy="${UI.esc(w)}">${I.copy}Копирай</button>${UI.shareLinks(w)}</div></div>`;
   const yearChips = BG.YEARS.map((yy) => `<a class="chip tab${yy === y ? ' on' : ''}" href="praznik.html?id=${def.id}&year=${yy}" data-go="id=${def.id}" data-y="${yy}">${yy}</a>`).join('');
   const other = CT.HOLIDAYS.filter((h) => h.id !== def.id).slice(0, 8);

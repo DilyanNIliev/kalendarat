@@ -23,6 +23,9 @@
   --ad: #ece8f6; --shadow: 0 1px 2px rgba(31,18,54,.06), 0 6px 20px rgba(31,18,54,.06);
   --footer-bg: #2a1458; --footer-ink: #ffffff; --glow: rgba(124,58,237,.14); --snow: #fff; color-scheme: light;
 }
+/* Хелоуин – леко лилав фон (тъмен и светъл) */
+:root[data-skin="halloween"] { --bg: #1b0d36; --surface: #271549; --line: #47296f; --glow: rgba(168,100,255,.38); }
+:root[data-skin="halloween"][data-mode="light"] { --bg: #e9ddfb; --surface: #fbf8ff; --line: #d3c1f1; --glow: rgba(124,58,237,.26); }
 /* Коледна – тъмен фон */
 :root[data-skin="christmas"] {
   --bg: #0a1f18; --surface: #12302a; --ink: #f6f1e7; --muted: #a9c7b8; --line: #27503f;

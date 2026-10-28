@@ -16,7 +16,7 @@
   const fact = (cls, icon, label, val) => `<div class="fact"><div class="ic ${cls}">${I[icon]}</div><div><b>${label}</b><span>${val}</span></div></div>`;
   const nameChips = (list) => list.map((n) => `<a class="chip" href="imen-den.html?name=${encodeURIComponent(n)}" data-go="name=${UI.esc(n)}">${UI.esc(n)}</a>`).join('');
 
-  const shareText = `Днес е ${now.getDate()} ${BG.MONTHS_GEN[now.getMonth()]}` + (holidays.length ? ` – ${holidays[0].title}` : '') + '. Календарът';
+  const shareText = `Днес е ${now.getDate()} ${BG.MONTHS_GEN[now.getMonth()]}` + (holidays.length ? ` – ${holidays[0].title}` : '') + '. kalendarat.com';
   const todayHtml = `<section class="today" aria-labelledby="today-h">
       <div class="today-date"><div class="d num">${now.getDate()}</div><div><div class="m">${BG.MONTHS_GEN[now.getMonth()]} ${now.getFullYear()}</div><div class="w">${wd[0].toUpperCase() + wd.slice(1)}</div></div></div>
       <div class="today-body">
@@ -81,7 +81,7 @@
     <div class="year-grid" id="year-grid"></div></section>`;
 
   UI.mount('', {
-    title: 'Календарът',
+    title: 'kalendarat.com',
     main: todayHtml + seasonHtml + tomorrowHtml + cdHtml + upHtml + UI.adBlock('ad-inline', 'Реклама · между блоковете 300×250 / 728×90') + bridgeHtml + vacHtml + UI.adBlock('ad-inline', 'Реклама · между блоковете') + calHtml,
   });
 
