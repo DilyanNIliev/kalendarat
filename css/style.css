@@ -320,3 +320,24 @@ table.tbl { width: 100%; border-collapse: collapse; font-size: .95rem; }
 .day-detail .evt { flex-wrap: wrap; gap: 8px 12px; }
 .day-detail .evt .tx { flex: 1 1 140px; }
 .month-card { align-self: start; }
+
+.kd { width: 9px; height: 9px; border-radius: 50%; display: inline-block; }
+.kd.church { background: var(--gold); } .kd.name { background: var(--blue); }
+/* прилепи (Хелоуин) */
+.bats { position: fixed; inset: 0; pointer-events: none; overflow: hidden; z-index: -1; color: var(--ink); opacity: .22; }
+.bats .b { position: absolute; width: 46px; left: -60px; animation: fly linear infinite; }
+.bats .b1 { top: 14%; animation-duration: 24s; } .bats .b2 { top: 34%; animation-duration: 32s; animation-delay: -9s; width: 34px; }
+.bats .b3 { top: 58%; animation-duration: 28s; animation-delay: -15s; } .bats .b4 { top: 78%; animation-duration: 36s; animation-delay: -4s; width: 30px; }
+.bats svg { width: 100%; display: block; animation: flap .35s ease-in-out infinite alternate; }
+@keyframes fly { 0% { transform: translate(0, 0); } 50% { transform: translate(55vw, -40px); } 100% { transform: translate(115vw, 20px); } }
+@keyframes flap { from { transform: scaleY(1); } to { transform: scaleY(.55); } }
+@media (prefers-reduced-motion: reduce) { .bats { display: none; } }
+
+.tag.clock, .tag.equinox { background: var(--primary-soft); color: var(--link); }
+.dt.clock, .dt.equinox { background: var(--primary-soft); color: var(--link); }
+.fact .ic.sky { background: var(--primary-soft); color: var(--link); }
+.kd.clock, .kd.equinox, .dots i.clock, .dots i.equinox { background: transparent; border: 1.5px solid; box-sizing: border-box; }
+.kd.clock, .dots i.clock { border-color: var(--ink); }
+.kd.equinox, .dots i.equinox { border-color: var(--link); }
+.cal button.day.sel .dots i.clock, .cal button.day.sel .dots i.equinox { background: transparent; border-color: var(--on-primary); }
+.sw.ring, .kd { flex: none; }

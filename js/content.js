@@ -2,6 +2,27 @@
 (function () {
   const mk = (y, m, d) => new Date(y, m - 1, d);
 
+
+  // Равноденствия (алгоритъм на Meeus) – дата и час по българско време
+  const EQ = [[485, 324.96, 1934.136], [203, 337.23, 32964.467], [199, 342.08, 20.186], [182, 27.85, 445267.112], [156, 73.14, 45036.886], [136, 171.52, 22518.443], [77, 222.54, 65928.934], [74, 296.72, 3034.906], [70, 243.58, 9037.513], [58, 119.81, 33718.147], [52, 297.17, 150.678], [50, 21.02, 2281.226], [45, 247.54, 29929.562], [44, 325.15, 31555.956], [29, 60.93, 4443.417], [18, 155.12, 67555.328], [17, 288.79, 4562.452], [16, 198.04, 62894.029], [14, 199.76, 31436.921], [12, 95.39, 14577.848], [12, 287.11, 31931.756], [12, 320.81, 34777.259], [9, 227.73, 1222.114], [8, 15.45, 16859.074]];
+  function equinoxMs(y, autumn) {
+    const Y = (y - 2000) / 1000, rad = Math.PI / 180;
+    const j0 = autumn
+      ? 2451810.21715 + 365242.01767 * Y - 0.11575 * Y * Y + 0.00337 * Y ** 3 + 0.00078 * Y ** 4
+      : 2451623.80984 + 365242.37404 * Y + 0.05169 * Y * Y - 0.00411 * Y ** 3 - 0.00057 * Y ** 4;
+    const T = (j0 - 2451545) / 36525, W = 35999.373 * T - 2.47;
+    const dl = 1 + 0.0334 * Math.cos(W * rad) + 0.0007 * Math.cos(2 * W * rad);
+    const S = EQ.reduce((a, [A, B, C]) => a + A * Math.cos((B + C * T) * rad), 0);
+    const jde = j0 + (0.00001 * S) / dl;
+    return (jde - 2440587.5) * 864e5 - 69000; // JDE → UTC (ΔT ≈ 69 s)
+  }
+  function sofia(ms) {
+    const p = {};
+    new Intl.DateTimeFormat('en-GB', { timeZone: 'Europe/Sofia', year: 'numeric', month: 'numeric', day: 'numeric', hour: 'numeric', minute: 'numeric', hourCycle: 'h23' }).formatToParts(new Date(ms)).forEach((x) => (p[x.type] = +x.value));
+    return { date: new Date(p.year, p.month - 1, p.day), time: BG.pad(p.hour) + ':' + BG.pad(p.minute) };
+  }
+  const lastSunday = (y, m) => { const l = new Date(y, m + 1, 0); return new Date(y, m, l.getDate() - l.getDay()); };
+
   // Църковни празници и пости
   const CH_FIXED = [
     [1, 6, 'Богоявление (Йордановден)'], [2, 2, 'Сретение Господне'], [3, 25, 'Благовещение'],
@@ -96,6 +117,9 @@
     add(mk(y, 8, 1), 'Започва Успенският пост', 'fast');
     add(mk(y, 11, 15), 'Започва Коледният пост', 'fast');
     ND.forYear(y).forEach((n) => add(n.date, n.title, 'name', { names: n.names }));
+    add(lastSunday(y, 2), 'Лятно часово време – в 03:00 часовникът се премества на 04:00', 'clock');
+    add(lastSunday(y, 9), 'Зимно часово време – в 04:00 часовникът се връща на 03:00', 'clock');
+    [[false, 'Пролетно равноденствие'], [true, 'Есенно равноденствие']].forEach(([aut, t]) => { const s = sofia(equinoxMs(y, aut)); add(s.date, t + ' (в ' + s.time + ' ч.)', 'equinox'); });
     // Дублиращи се имена на празници, които вече са църковни/официални, се сливат по дата
     const byDate = {};
     Object.values(map).forEach((ev) => { (byDate[BG.key(ev.date)] = byDate[BG.key(ev.date)] || []).push(ev); });

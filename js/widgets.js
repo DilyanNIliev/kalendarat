@@ -1,8 +1,8 @@
 // Повторно използвани части: карти на събития, ленти с дни, месечен календар
 (function () {
   const U = UI;
-  const TYPE_LABEL = { dayoff: 'Почивен ден', church: 'Църковен празник', name: 'Имен ден', vac: 'Ваканция', noschool: 'Неучебни дни', national: 'Празник', fast: 'Пост' };
-  const tag = (t) => `<span class="tag ${t}">${U.ICON[t === 'noschool' ? 'vac' : t === 'dayoff' ? 'dayoff' : t] || ''}${TYPE_LABEL[t]}</span>`;
+  const TYPE_LABEL = { dayoff: 'Почивен ден', church: 'Църковен празник', name: 'Имен ден', vac: 'Ваканция', noschool: 'Неучебни дни', clock: 'Смяна на часа', equinox: 'Равноденствие', national: 'Празник', fast: 'Пост' };
+  const tag = (t) => `<span class="tag ${t}">${U.ICON[t === 'noschool' ? 'vac' : t === 'equinox' ? 'sun' : t] || ''}${TYPE_LABEL[t]}</span>`;
   const primaryType = (ev) => (ev.types.includes('dayoff') ? 'dayoff' : ev.types.includes('church') ? 'church' : ev.types[0]);
 
   function eventCard(ev, now) {
@@ -35,7 +35,7 @@
       <p class="muted" style="font-size:.9rem">Вземи отпуск ${range}. Почиваш от ${BG.fmt(b.from)} до ${BG.fmt(b.to)}.</p></article>`;
   }
 
-  const legend = `<div class="legend"><span><i class="sw dayoff"></i>Почивен ден</span><span><i class="sw church"></i>Църковен празник</span><span><i class="sw name"></i>Имен ден</span><span><i class="sw vac"></i>Ваканция</span><span><i class="sw ring"></i>Ваканция и почивен ден (контур)</span></div>`;
+  const legend = `<div class="legend"><span><i class="sw dayoff"></i>Почивен ден</span><span><i class="sw vac"></i>Ваканция</span><span><i class="sw ring"></i>Ваканция и почивен ден (контур)</span><span><i class="kd church"></i>Църковен празник (точка)</span><span><i class="kd name"></i>Имен ден (точка)</span><span><i class="kd clock"></i>Смяна на часа – лятно/зимно време (празно кръгче)</span><span><i class="kd equinox"></i>Равноденствие (празно кръгче)</span></div>`;
 
   // Месечен календар с цветове и точки; clickable=true показва подробности
   function monthCal(el, y, m, opts) {
@@ -53,7 +53,7 @@
     for (let d = 1; d <= n; d++) {
       const dt = new Date(y, m, d), k = BG.key(dt), list = byKey[k] || [];
       const off = !!BG.offName(dt), we = BG.isWeekend(dt), vac = !!vacKeys[k] && !we && !off, vr = !!vacKeys[k] && (we || off);
-      const dots = [...new Set(list.flatMap((e) => e.types).filter((t) => t === 'church' || t === 'name'))];
+      const dots = [...new Set(list.flatMap((e) => e.types).filter((t) => t === 'church' || t === 'name' || t === 'clock' || t === 'equinox'))];
       cells += `<button type="button" class="day${off ? ' off' : ''}${we ? ' we' : ''}${vac ? ' vac' : ''}${vr ? ' vr' : ''}${k === todayK ? ' today' : ''}" data-k="${k}" aria-label="${d} ${BG.MONTHS_GEN[m]}"><span class="num">${d}</span><span class="dots">${dots.slice(0, 3).map((t) => `<i class="${t}"></i>`).join('')}</span></button>`;
     }
     el.innerHTML = `<div class="cal">${cells}</div>`;

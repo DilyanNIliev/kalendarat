@@ -5,7 +5,8 @@
   const evToday = CT.events(now.getFullYear()).filter((e) => BG.key(e.date) === BG.key(now));
   const offToday = BG.offName(now);
   const weekend = BG.isWeekend(now);
-  const holidays = evToday.filter((e) => !e.types.includes('name'));
+  const holidays = evToday.filter((e) => !e.types.includes('name') && !e.types.includes('clock') && !e.types.includes('equinox'));
+  const sky = evToday.filter((e) => e.types.includes('clock') || e.types.includes('equinox'));
   const nameEv = evToday.filter((e) => e.types.includes('name'));
   const names = [...new Set(nameEv.flatMap((e) => e.names))];
   const vacNow = CT.VAC.find((v) => v.from <= today && v.to >= today);
@@ -24,6 +25,7 @@
           ${fact('dayoff', 'dayoff', 'Почивен ден', offToday ? `Да – ${UI.esc(offToday)}` : weekend ? 'Да – уикенд' : 'Не, работен ден')}
           ${fact('church', 'church', 'Празник', holidays.length ? holidays.map((h) => UI.esc(h.title)).join(', ') : 'Няма отбелязан празник')}
           ${fact('name', 'name', 'Имен ден', names.length ? names.slice(0, 8).map(UI.esc).join(', ') : 'Днес не се празнува имен ден')}
+          ${sky.length ? fact('sky', 'fast', 'Календар', sky.map((e) => UI.esc(e.title)).join('<br>')) : ''}
           ${vacNow ? fact('vac', 'vac', 'Ваканция', UI.esc(vacNow.name)) : ''}
         </div>
         <div class="actions"><a class="btn" href="pozhelaniya.html" data-go="cat=${names.length ? 'imenden' : 'rozhden'}">${I.heart}Виж пожелания</a>
