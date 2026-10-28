@@ -11,13 +11,16 @@
     search: P('<circle cx="11" cy="11" r="6.5"/><path d="M20 20l-4.2-4.2"/>'),
     menu: P('<path d="M4 7h16M4 12h16M4 17h16"/>'), close: P('<path d="M6 6l12 12M18 6L6 18"/>'),
     copy: P('<rect x="8" y="8" width="12" height="12" rx="2"/><path d="M16 8V6a2 2 0 0 0-2-2H6a2 2 0 0 0-2 2v8a2 2 0 0 0 2 2h2"/>'),
+    palette: P('<path d="M12 3a9 9 0 1 0 0 18c1.400 0 2-1 2-2 0-1.500-1-1.800-1-3 0-1 .8-2 2.200-2H17a4 4 0 0 0 4-4c0-3.900-4-7-9-7z"/><circle cx="7.500" cy="11" r=".9"/><circle cx="10" cy="7" r=".9"/><circle cx="15" cy="7" r=".9"/>'),
+    sun: P('<circle cx="12" cy="12" r="4"/><path d="M12 2.500v2.500M12 19v2.500M2.500 12H5M19 12h2.500M5.300 5.300l1.800 1.800M16.900 16.900l1.800 1.800M5.300 18.700l1.800-1.800M16.900 7.100l1.800-1.800"/>'),
+    clock: P('<circle cx="12" cy="12" r="8.500"/><path d="M12 7.500V12l3 2"/>'),
     moon: P('<path d="M20 14.5A8 8 0 1 1 9.5 4 6.5 6.5 0 0 0 20 14.5z"/>'),
     arrow: P('<path d="M5 12h14M13 6l6 6-6 6"/>'), left: P('<path d="M15 5l-7 7 7 7"/>'), right: P('<path d="M9 5l7 7-7 7"/>'),
     heart: P('<path d="M12 20s-7-4.4-7-10a4 4 0 0 1 7-2.5A4 4 0 0 1 19 10c0 5.600-7 10-7 10z"/>'),
     fb: '<svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" stroke="none" d="M13.5 21v-7.5h2.6l.4-3h-3V8.600c0-.9.3-1.500 1.600-1.500h1.500V4.400c-.3 0-1.200-.1-2.200-.1-2.200 0-3.700 1.300-3.700 3.800v2.400H8v3h2.700V21z"/></svg>',
     viber: P('<path d="M12 3c-4.700 0-8 2.600-8 6.700 0 2.300 1 4 2.600 5.200V20l3.200-2c.7.1 1.400.2 2.200.2 4.700 0 8-2.700 8-6.800S16.700 3 12 3z"/><path d="M9.500 8.500c.2 2.600 2.400 4.800 5 5"/>'),
   };
-  const LOGO = `<svg viewBox="0 0 40 40" aria-hidden="true"><rect width="40" height="40" rx="11" fill="var(--primary)"/><rect x="8" y="10" width="24" height="22" rx="4" fill="#fff"/><rect x="8" y="10" width="24" height="7" rx="3.500" fill="#c4352b"/><circle cx="14" cy="24" r="1.800" fill="#0f4c3a"/><circle cx="20" cy="24" r="1.800" fill="#0f4c3a"/><circle cx="26" cy="24" r="1.800" fill="#d9a441"/><circle cx="14" cy="29" r="1.800" fill="#0f4c3a"/><circle cx="20" cy="29" r="1.800" fill="#0f4c3a"/></svg>`;
+  const LOGO = `<svg viewBox="0 0 40 40" aria-hidden="true"><rect width="40" height="40" rx="11" fill="var(--primary)"/><rect x="8" y="10" width="24" height="22" rx="4" fill="#fff"/><rect x="8" y="10" width="24" height="7" rx="3.500" fill="#c4352b"/><circle cx="14" cy="24" r="1.800" fill="var(--primary)"/><circle cx="20" cy="24" r="1.800" fill="var(--primary)"/><circle cx="26" cy="24" r="1.800" fill="#d9a441"/><circle cx="14" cy="29" r="1.800" fill="var(--primary)"/><circle cx="20" cy="29" r="1.800" fill="var(--primary)"/></svg>`;
 
   const NAV = [['pochivni-dni.html', 'Почивни дни', 'days'], ['praznici.html', 'Празници', 'praznici'], ['imeni-dni.html', 'Имени дни', 'names'], ['praznici.html?type=church', 'Църковен календар', 'church'], ['vakancii.html', 'Ваканции', 'vac'], ['pozhelaniya.html', 'Пожелания', 'wishes']];
 
@@ -31,15 +34,39 @@
   const plural = (n, one, many) => n + ' ' + (n === 1 ? one : many);
   const daysAway = (n) => (n === 0 ? 'днес' : n === 1 ? 'утре' : 'след ' + plural(n, 'ден', 'дни'));
 
-  function applyTheme(t) { if (t) document.documentElement.dataset.theme = t; }
-  function initTheme() {
-    let t = null; try { t = localStorage.getItem('theme'); } catch (_) {}
-    applyTheme(t);
+  // Тема (лилава / коледна) и фон (светъл / тъмен). Автоматичният фон следва часа в България:
+  // тъмен от 19:00 до 07:00, светъл през деня.
+  const root = document.documentElement;
+  const SKINS = ['purple', 'christmas'];
+  const SKIN_NAMES = { purple: 'Лилава', christmas: 'Коледна' };
+  const MODE_NAMES = { auto: 'Автоматичен (по часа в България)', light: 'Светъл', dark: 'Тъмен' };
+  const read = (k, dflt) => { try { return localStorage.getItem(k) || dflt; } catch (_) { return dflt; } };
+  const write = (k, v) => { try { localStorage.setItem(k, v); } catch (_) {} };
+  const sofiaHour = () => {
+    try { return +new Intl.DateTimeFormat('en-GB', { timeZone: 'Europe/Sofia', hour: 'numeric', hourCycle: 'h23' }).format(new Date()); } catch (_) { return new Date().getHours(); }
+  };
+  const autoMode = () => { const h = sofiaHour(); return h >= 19 || h < 7 ? 'dark' : 'light'; };
+  function applySkin(s) { if (s === 'purple') root.removeAttribute('data-skin'); else root.dataset.skin = s; }
+  function applyMode() {
+    const pref = read('mode', 'auto');
+    root.dataset.mode = pref === 'auto' ? autoMode() : pref;
+    const btn = document.getElementById('mode');
+    if (btn) { btn.innerHTML = pref === 'auto' ? ICON.clock : root.dataset.mode === 'dark' ? ICON.moon : ICON.sun; const t = 'Фон: ' + MODE_NAMES[pref] + (pref === 'auto' ? ', сега ' + (root.dataset.mode === 'dark' ? 'тъмен' : 'светъл') : ''); btn.title = t; btn.setAttribute('aria-label', t + '. Натиснете за смяна.'); }
   }
-  function toggleTheme() {
-    const cur = document.documentElement.dataset.theme || (matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
-    const next = cur === 'dark' ? 'light' : 'dark';
-    applyTheme(next); try { localStorage.setItem('theme', next); } catch (_) {}
+  function initTheme() {
+    const s = read('skin', 'purple'); if (SKINS.includes(s)) applySkin(s);
+    applyMode();
+    clearInterval(window.__modeTimer); window.__modeTimer = setInterval(applyMode, 60000);
+  }
+  function toggleSkin() {
+    const next = SKINS[(SKINS.indexOf(root.dataset.skin || 'purple') + 1) % SKINS.length];
+    applySkin(next); write('skin', next); toast('Тема: ' + SKIN_NAMES[next]);
+  }
+  function toggleMode() {
+    const order = ['auto', 'light', 'dark'];
+    const next = order[(order.indexOf(read('mode', 'auto')) + 1) % 3];
+    write('mode', next); applyMode();
+    toast('Фон: ' + MODE_NAMES[next] + (next === 'auto' ? ' – сега ' + (root.dataset.mode === 'dark' ? 'тъмен' : 'светъл') : ''));
   }
 
   function toast(msg) {
@@ -66,7 +93,8 @@
     go('praznik.html', 'id', h.id);
   }
 
-  const adBlock = (cls, label) => `<aside class="ad ${cls}" aria-label="Реклама"><span class="ad-label">${label}</span></aside>`;
+  const ADS = false; // включете, когато добавите реклами
+  const adBlock = (cls, label) => !ADS ? '' : `<aside class="ad ${cls}" aria-label="Реклама"><span class="ad-label">${label}</span></aside>`;
 
   function mount(active, { title, main, aside }) {
     initTheme();
@@ -79,7 +107,7 @@
         <a href="vakancii.html">Ваканции 2026/2027 ${ICON.arrow}</a>
         <a href="imen-den.html?name=Иван" data-p="name=Иван">Имен ден на Иван ${ICON.arrow}</a>
         <a href="pozhelaniya.html">Пожелания ${ICON.arrow}</a></section>`;
-    document.body.classList.add('has-sticky');
+    if (ADS) document.body.classList.add('has-sticky');
     // запазва стиловете и метаданните, ако са вътре в body (напр. при вграждане)
     const keep = [...document.body.children].filter((e) => /^(STYLE|LINK|TITLE|META|SCRIPT)$/.test(e.tagName));
     document.body.innerHTML = `
@@ -88,10 +116,10 @@
         <form class="search" role="search" id="hsearch"><label class="sr" for="hq">Търсене на име или празник</label>
           <input id="hq" type="search" list="hlist" placeholder="Име или празник, напр. Георги" autocomplete="off"><button type="submit" aria-label="Търси">${ICON.search}<span>Търси</span></button>
           <datalist id="hlist">${searchIndex().map((n) => `<option value="${esc(n)}">`).join('')}</datalist></form>
-        <div class="tools"><button class="ibtn" id="theme" aria-label="Тъмна или светла тема">${ICON.moon}</button><button class="ibtn burger" id="burger" aria-label="Меню" aria-expanded="false">${ICON.menu}</button></div>
+        <div class="tools"><button class="ibtn" id="theme" aria-label="Смени темата (лилава или коледна)" title="Смени темата">${ICON.palette}</button><button class="ibtn" id="mode" type="button"></button><button class="ibtn burger" id="burger" aria-label="Меню" aria-expanded="false">${ICON.menu}</button></div>
         <nav class="nav" id="nav" aria-label="Основно меню">${navLinks}</nav>
       </div></header>
-      <div class="wrap">${adBlock('ad-top', 'Реклама · банер 320×100 / 728×90')}</div>
+      ${ADS ? `<div class="wrap">${adBlock('ad-top', 'Реклама · банер 320×100 / 728×90')}</div>` : ''}
       <div class="wrap layout"><main class="main" id="main">${main}</main><div class="aside">${asideHtml}</div></div>
       <footer class="site-footer"><div class="wrap">
         <div class="cols">
@@ -101,13 +129,15 @@
         </div>
         <p class="copy">© ${new Date().getFullYear()} Календарът. Данните са информативни, проверявайте в официалните източници.</p>
       </div></footer>
-      <aside class="ad ad-sticky" id="sticky" aria-label="Реклама"><span class="ad-label">Лепкава реклама 320×50</span><button aria-label="Затвори рекламата" id="sx">${ICON.close}</button></aside>`;
+      ${ADS ? `<aside class="ad ad-sticky" id="sticky" aria-label="Реклама"><span class="ad-label">Лепкава реклама 320×50</span><button aria-label="Затвори рекламата" id="sx">${ICON.close}</button></aside>` : ''}`;
     keep.forEach((e) => document.body.appendChild(e));
-    document.getElementById('theme').onclick = toggleTheme;
+    document.getElementById('theme').onclick = toggleSkin;
+    document.getElementById('mode').onclick = toggleMode;
+    applyMode();
     const nav = document.getElementById('nav'), bg = document.getElementById('burger');
     bg.onclick = () => { const o = nav.classList.toggle('open'); bg.setAttribute('aria-expanded', o); bg.innerHTML = o ? ICON.close : ICON.menu; };
     document.getElementById('hsearch').onsubmit = (e) => { e.preventDefault(); runSearch(document.getElementById('hq').value); };
-    document.getElementById('sx').onclick = () => { document.getElementById('sticky').classList.add('hidden'); document.body.classList.remove('has-sticky'); };
+    const sx = document.getElementById('sx'); if (sx) sx.onclick = () => { document.getElementById('sticky').classList.add('hidden'); document.body.classList.remove('has-sticky'); };
     // линкове с параметри (за сигурно навигиране)
     document.querySelectorAll('a[data-p]').forEach((a) => a.addEventListener('click', (e) => { const [k, v] = a.dataset.p.split('='); e.preventDefault(); go(a.getAttribute('href').split('?')[0], k, v); }));
     document.querySelectorAll('.nav a[href*="type="]').forEach((a) => a.addEventListener('click', (e) => { e.preventDefault(); go('praznici.html', 'type', 'church'); }));
