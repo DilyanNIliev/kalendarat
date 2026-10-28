@@ -1,10 +1,13 @@
 UI.header('names');
-const q = new URLSearchParams(location.search).get('q') || '';
-document.getElementById('search-box').innerHTML = UI.searchForm(q);
+let stored = '';
+try { stored = sessionStorage.getItem('q') || ''; sessionStorage.removeItem('q'); } catch (_) {}
+const q0 = new URLSearchParams(location.search).get('q') || stored;
+document.getElementById('search-box').innerHTML = UI.searchForm(q0);
 
 const esc = (s) => s.replace(/[&<>]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;' }[c]));
 const res = document.getElementById('results');
-if (q.trim()) {
+function show(q) {
+  if (!q.trim()) { res.innerHTML = ''; return; }
   const hits = ND.search(q, new Date());
   const ql = q.trim().toLowerCase();
   const hl = (n) => (n.toLowerCase().startsWith(ql) ? `<mark>${esc(n)}</mark>` : esc(n));
@@ -17,6 +20,11 @@ if (q.trim()) {
       </div>`).join('')
     : `<p class="muted" style="margin-top:16px">Не намерихме имен ден за „${esc(q.trim())}“. Опитайте с друга форма на името.</p>`;
 }
+show(q0);
+document.querySelector('.search').addEventListener('submit', (e) => {
+  e.preventDefault();
+  show(document.getElementById('q').value);
+});
 
 const rows = BG.YEARS.map((y) => ND.forYear(y).filter((x) => x.movable));
 document.getElementById('movable').innerHTML =

@@ -51,5 +51,12 @@ for (let i = 0; i < 400 && up.length < 6; i++, d = BG.addDays(d, 1)) {
 document.getElementById('upcoming').innerHTML = up.map(({ d, h }) =>
   `<li><span><b>${BG.fmt(d)}</b> <span class="muted">${BG.WEEKDAYS[d.getDay()]}</span><br>${h.name}</span><span class="pill">${UI.daysAway(Math.round((d - ND.startOfDay(now)) / 864e5))}</span></li>`).join('');
 
-document.getElementById('year-links').innerHTML = BG.YEARS.map((y) => `<a href="pochivni-dni.html?year=${y}">${y}</a>`).join('');
+document.getElementById('year-links').innerHTML = BG.YEARS.map((y) => `<a href="pochivni-dni.html?year=${y}#${y}">${y}</a>`).join('');
 UI.footer();
+
+document.querySelector('.search').addEventListener('submit', (e) => {
+  e.preventDefault();
+  const q = document.getElementById('q').value.trim();
+  try { sessionStorage.setItem('q', q); } catch (_) {}
+  location.href = 'imeni-dni.html?q=' + encodeURIComponent(q);
+});

@@ -1,11 +1,11 @@
 UI.header('days');
 const params = new URLSearchParams(location.search);
-let Y = parseInt(params.get('year'), 10);
+let Y = parseInt(params.get('year') || location.hash.slice(1), 10);
 if (!BG.YEARS.includes(Y)) Y = BG.YEARS.includes(new Date().getFullYear()) ? new Date().getFullYear() : BG.YEARS[0];
 const data = BG.year(Y);
 document.title = 'Почивни дни и официални празници ' + Y;
 document.getElementById('title').textContent = 'Почивни дни и официални празници ' + Y;
-document.getElementById('tabs').innerHTML = BG.YEARS.map((y) => `<a href="?year=${y}"${y === Y ? ' class="active"' : ''}>${y}</a>`).join('');
+document.getElementById('tabs').innerHTML = BG.YEARS.map((y) => `<a href="?year=${y}#${y}"${y === Y ? ' class="active"' : ''}>${y}</a>`).join('');
 
 const offKeys = Object.keys(data.off).sort();
 const workdayOff = offKeys.filter((k) => !BG.isWeekend(new Date(k + 'T00:00:00')));
