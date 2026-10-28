@@ -35,7 +35,7 @@
       <p class="muted" style="font-size:.9rem">Вземи отпуск ${range}. Почиваш от ${BG.fmt(b.from)} до ${BG.fmt(b.to)}.</p></article>`;
   }
 
-  const legend = `<div class="legend"><span><i class="sw dayoff"></i>Почивен ден</span><span><i class="sw church"></i>Църковен празник</span><span><i class="sw name"></i>Имен ден</span><span><i class="sw vac"></i>Ваканция</span></div>`;
+  const legend = `<div class="legend"><span><i class="sw dayoff"></i>Почивен ден</span><span><i class="sw church"></i>Църковен празник</span><span><i class="sw name"></i>Имен ден</span><span><i class="sw vac"></i>Ваканция</span><span><i class="sw ring"></i>Ваканция и почивен ден (контур)</span></div>`;
 
   // Месечен календар с цветове и точки; clickable=true показва подробности
   function monthCal(el, y, m, opts) {
@@ -44,6 +44,7 @@
     const byKey = {};
     evs.forEach((e) => (byKey[BG.key(e.date)] = byKey[BG.key(e.date)] || []).push(e));
     const vacKeys = {};
+    Object.assign(vacKeys, BG.year(y).school);
     CT.VAC.forEach((v) => { for (let d = v.from; d <= v.to; d = BG.addDays(d, 1)) vacKeys[BG.key(d)] = v.name; });
     const first = new Date(y, m, 1), lead = (first.getDay() + 6) % 7, n = new Date(y, m + 1, 0).getDate();
     const todayK = BG.key(new Date());
@@ -51,10 +52,9 @@
     for (let i = 0; i < lead; i++) cells += '<div class="blank"></div>';
     for (let d = 1; d <= n; d++) {
       const dt = new Date(y, m, d), k = BG.key(dt), list = byKey[k] || [];
-      const off = !!BG.offName(dt), we = BG.isWeekend(dt), vac = !!vacKeys[k] && !we && !off;
+      const off = !!BG.offName(dt), we = BG.isWeekend(dt), vac = !!vacKeys[k] && !we && !off, vr = !!vacKeys[k] && (we || off);
       const dots = [...new Set(list.flatMap((e) => e.types).filter((t) => t === 'church' || t === 'name'))];
-      if (vacKeys[k]) dots.push('vac');
-      cells += `<button type="button" class="day${off ? ' off' : ''}${we ? ' we' : ''}${vac ? ' vac' : ''}${k === todayK ? ' today' : ''}" data-k="${k}" aria-label="${d} ${BG.MONTHS_GEN[m]}"><span class="num">${d}</span><span class="dots">${dots.slice(0, 3).map((t) => `<i class="${t}"></i>`).join('')}</span></button>`;
+      cells += `<button type="button" class="day${off ? ' off' : ''}${we ? ' we' : ''}${vac ? ' vac' : ''}${vr ? ' vr' : ''}${k === todayK ? ' today' : ''}" data-k="${k}" aria-label="${d} ${BG.MONTHS_GEN[m]}"><span class="num">${d}</span><span class="dots">${dots.slice(0, 3).map((t) => `<i class="${t}"></i>`).join('')}</span></button>`;
     }
     el.innerHTML = `<div class="cal">${cells}</div>`;
     if (!opts.clickable) return;
@@ -68,8 +68,10 @@
       if (vacKeys[k]) parts.push(`<div class="evt">${tag('vac')}<div class="tx"><strong>${U.esc(vacKeys[k])}</strong></div></div>`);
       det.innerHTML = `<h4>${dt.getDate()} ${BG.MONTHS_GEN[dt.getMonth()]}, ${BG.WEEKDAYS[dt.getDay()]}</h4>${parts.join('') || '<p class="muted">Няма отбелязани събития.</p>'}`;
       el.querySelectorAll('.day').forEach((b) => b.classList.toggle('sel', b.dataset.k === k));
+      if (opts.onSelect) opts.onSelect();
     };
     el.querySelectorAll('.day').forEach((b) => b.addEventListener('click', () => show(b.dataset.k)));
+    if (opts.noInitial && BG.key(new Date()).slice(0, 7) !== y + '-' + BG.pad(m + 1)) return;
     show(opts.select || (BG.key(new Date()).slice(0, 7) === y + '-' + BG.pad(m + 1) ? todayK : y + '-' + BG.pad(m + 1) + '-01'));
   }
 

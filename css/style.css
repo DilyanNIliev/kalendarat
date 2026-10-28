@@ -210,7 +210,8 @@ a.evt:hover { border-color: var(--primary); }
 .cal button.day.we { color: var(--red); }
 .cal button.day.off { background: var(--red-soft); color: var(--red); }
 .cal button.day.vac { background: var(--purple-soft); }
-.cal button.day.today { border-color: var(--primary); box-shadow: inset 0 0 0 1px var(--primary); }
+.cal button.day.vr { box-shadow: inset 0 0 0 2.5px var(--purple); }
+.cal button.day.today { outline: 2px solid var(--primary); outline-offset: 1px; }
 .cal button.day.sel { background: var(--primary); color: var(--on-primary); }
 .dots { display: flex; gap: 3px; min-height: 6px; }
 .dots i { width: 6px; height: 6px; border-radius: 50%; display: block; }
@@ -304,3 +305,18 @@ table.tbl { width: 100%; border-collapse: collapse; font-size: .95rem; }
 :root[data-skin="christmas"] .site-header, :root[data-skin="christmas"] .layout, :root[data-skin="christmas"] .site-footer { position: relative; z-index: 1; }
 :root[data-skin="christmas"] .site-header { position: sticky; z-index: 30; }
 @media (prefers-reduced-motion: reduce) { :root[data-skin="christmas"] body::before { animation: none; } }
+
+.sw.ring { background: transparent; border: 2.5px solid var(--purple); }
+.year-grid { display: grid; gap: 14px; grid-template-columns: 1fr; margin-top: 12px; }
+@media (min-width: 640px) { .year-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+@media (min-width: 1180px) { .year-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); } }
+.month-card { padding: 14px; }
+.month-card h3 { font-size: 1.1rem; margin-bottom: 8px; }
+.month-card.current { border-color: var(--primary); box-shadow: 0 0 0 2px var(--primary-soft); }
+.month-card .cal { gap: 3px; }
+.month-card .cal button.day, .month-card .cal .blank { max-height: 44px; font-size: .9rem; }
+.month-card .day-detail:empty { display: none; }
+.month-card .day-detail .evt { padding: 8px 10px; }
+.day-detail .evt { flex-wrap: wrap; gap: 8px 12px; }
+.day-detail .evt .tx { flex: 1 1 140px; }
+.month-card { align-self: start; }

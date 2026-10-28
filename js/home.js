@@ -73,10 +73,10 @@
     <div class="timeline">${vacs.map((v, i) => `<div class="vrow${i === 0 ? ' next' : ''}"><div class="dd"><b>${v.from.getDate()}</b><small>${BG.MONTHS_GEN[v.from.getMonth()].slice(0, 3)}</small></div>
       <div><strong>${UI.esc(v.name)}${i === 0 ? '<span class="badge-next">Следва</span>' : ''}</strong><span>${BG.fmt(v.from)}${+v.from === +v.to ? '' : ' – ' + BG.fmt(v.to)} · ${v.grades}</span></div></div>`).join('')}</div></section>`;
 
-  // Календар
-  const calHtml = `<section aria-labelledby="cal-h"><div class="sec-h"><h2 id="cal-h">Календар</h2>${W.legend}</div>
-    <div class="panel"><div class="cal-head"><button class="ibtn" id="prev" aria-label="Предишен месец">${I.left}</button><h3 id="cal-title"></h3><button class="ibtn" id="next" aria-label="Следващ месец">${I.right}</button></div>
-    <div id="cal"></div><div class="day-detail" id="detail" aria-live="polite"></div></div></section>`;
+  // Календар – всички месеци
+  const calHtml = `<section aria-labelledby="cal-h"><div class="sec-h"><h2 id="cal-h">Календар <span id="cal-year"></span></h2>${W.legend}</div>
+    <div class="cal-head"><button class="ibtn" id="prev" aria-label="Предишна година">${I.left}</button><span class="muted">Изберете ден, за да видите подробности</span><button class="ibtn" id="next" aria-label="Следваща година">${I.right}</button></div>
+    <div class="year-grid" id="year-grid"></div></section>`;
 
   UI.mount('', {
     title: 'Календарът',
@@ -84,12 +84,17 @@
   });
 
   Season.start(document.querySelector('main'));
-  let y = now.getFullYear(), m = now.getMonth();
+  let y = now.getFullYear();
   const draw = () => {
-    document.getElementById('cal-title').textContent = BG.MONTHS[m] + ' ' + y;
-    W.monthCal(document.getElementById('cal'), y, m, { clickable: true, detail: document.getElementById('detail') });
+    document.getElementById('cal-year').textContent = y;
+    const grid = document.getElementById('year-grid');
+    grid.innerHTML = BG.MONTHS.map((name, i) => `<section class="panel month-card${y === now.getFullYear() && i === now.getMonth() ? ' current' : ''}"><h3>${name}</h3><div id="mc${i}"></div><div class="day-detail" id="md${i}" aria-live="polite"></div></section>`).join('');
+    BG.MONTHS.forEach((_, i) => W.monthCal(document.getElementById('mc' + i), y, i, {
+      clickable: true, noInitial: true, detail: document.getElementById('md' + i),
+      onSelect: () => BG.MONTHS.forEach((__, j) => { if (j !== i) { document.getElementById('md' + j).innerHTML = ''; document.querySelectorAll('#mc' + j + ' .day.sel').forEach((b) => b.classList.remove('sel')); } }),
+    }));
   };
-  document.getElementById('prev').onclick = () => { m--; if (m < 0) { m = 11; y--; } draw(); };
-  document.getElementById('next').onclick = () => { m++; if (m > 11) { m = 0; y++; } draw(); };
+  document.getElementById('prev').onclick = () => { if (y > BG.YEARS[0]) { y--; draw(); } };
+  document.getElementById('next').onclick = () => { if (y < BG.YEARS[BG.YEARS.length - 1]) { y++; draw(); } };
   draw();
 })();
