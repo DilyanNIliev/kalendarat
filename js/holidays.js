@@ -139,5 +139,8 @@
     return null;
   }
 
-  window.BG = { MONTHS, MONTHS_GEN, WEEKDAYS, pad, key, addDays, isWeekend, fmt, fmtFull, easter, year, nextOfficial, YEARS: [2026, 2027, 2028, 2029] };
+  const isOff = (d) => isWeekend(d) || !!year(d.getFullYear()).off[key(d)];
+  const offName = (d) => { const o = year(d.getFullYear()).off[key(d)]; return o ? o.name : null; };
+
+  window.BG = { fmtFull, isOff, offName, MONTHS, MONTHS_GEN, WEEKDAYS, pad, key, addDays, isWeekend, fmt, fmtFull, easter, year, nextOfficial, YEARS: [2026, 2027, 2028, 2029] };
 })();
