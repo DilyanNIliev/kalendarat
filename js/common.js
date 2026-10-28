@@ -80,6 +80,8 @@
         <a href="imen-den.html?name=Иван" data-p="name=Иван">Имен ден на Иван ${ICON.arrow}</a>
         <a href="pozhelaniya.html">Пожелания ${ICON.arrow}</a></section>`;
     document.body.classList.add('has-sticky');
+    // запазва стиловете и метаданните, ако са вътре в body (напр. при вграждане)
+    const keep = [...document.body.children].filter((e) => /^(STYLE|LINK|TITLE|META|SCRIPT)$/.test(e.tagName));
     document.body.innerHTML = `
       <header class="site-header"><div class="wrap hd">
         <a class="brand" href="index.html">${LOGO}<span>Календар<em>ът</em></span></a>
@@ -100,6 +102,7 @@
         <p class="copy">© ${new Date().getFullYear()} Календарът. Данните са информативни, проверявайте в официалните източници.</p>
       </div></footer>
       <aside class="ad ad-sticky" id="sticky" aria-label="Реклама"><span class="ad-label">Лепкава реклама 320×50</span><button aria-label="Затвори рекламата" id="sx">${ICON.close}</button></aside>`;
+    keep.forEach((e) => document.body.appendChild(e));
     document.getElementById('theme').onclick = toggleTheme;
     const nav = document.getElementById('nav'), bg = document.getElementById('burger');
     bg.onclick = () => { const o = nav.classList.toggle('open'); bg.setAttribute('aria-expanded', o); bg.innerHTML = o ? ICON.close : ICON.menu; };
