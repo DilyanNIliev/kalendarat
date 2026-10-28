@@ -246,3 +246,33 @@ table.tbl { width: 100%; border-collapse: collapse; font-size: .95rem; }
 .site-footer a:hover { text-decoration: underline; }
 .site-footer .copy { margin-top: 22px; font-size: .82rem; opacity: .75; }
 @media (prefers-reduced-motion: reduce) { html { scroll-behavior: auto; } }
+
+/* сезонно отброяване */
+.season { --s-bg: linear-gradient(135deg, #0f4c3a, #0b3a2d); --s-acc: #f4c542; position: relative; overflow: hidden; border-radius: 20px; padding: 20px; color: #fff; display: grid; gap: 14px; background: var(--s-bg); isolation: isolate; }
+.season.halloween { --s-bg: linear-gradient(135deg, #2b1048 0%, #4a1d6e 60%, #7a2a14 130%); --s-acc: #9dff6a; }
+.season.christmas { --s-bg: linear-gradient(135deg, #8c1d1d 0%, #5f1414 45%, #0f4c3a 130%); --s-acc: #f4c542; }
+.season.newyear { --s-bg: linear-gradient(135deg, #14234f, #0a1230); --s-acc: #f4c542; }
+.season.babamarta { --s-bg: linear-gradient(135deg, #b32b35, #7d1c27); --s-acc: #fff; }
+.season.easter { --s-bg: linear-gradient(135deg, #a7262b, #6c1a1f); --s-acc: #f8e3a1; }
+.season.gergyovden { --s-bg: linear-gradient(135deg, #2f7d32, #1d5a2a); --s-acc: #f8e3a1; }
+.s-top { display: flex; align-items: center; gap: 14px; }
+.season .art { width: 64px; height: 64px; flex: none; filter: drop-shadow(0 4px 14px rgba(0,0,0,.35)); }
+.s-kicker { font-weight: 700; opacity: .9; }
+.s-date { font-size: 1.35rem; font-weight: 800; }
+.units { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 8px; max-width: 440px; }
+.u { background: rgba(255,255,255,.12); border: 1px solid rgba(255,255,255,.22); border-radius: 14px; padding: 10px 4px; text-align: center; }
+.u b { display: block; font-size: clamp(1.6rem, 7vw, 2.4rem); line-height: 1.1; font-weight: 800; color: var(--s-acc); }
+.u span { font-size: .72rem; text-transform: uppercase; letter-spacing: .08em; opacity: .85; }
+.s-done { grid-column: 1 / -1; font-size: 1.6rem; font-weight: 800; color: var(--s-acc); }
+.s-sub { opacity: .92; max-width: 52ch; }
+.s-rest { display: inline-block; margin-top: 4px; background: rgba(255,255,255,.16); border-radius: 999px; padding: 2px 12px; font-weight: 700; font-size: .85rem; }
+.season .btn { background: #fff; color: #17302a; border-color: #fff; }
+.season .btn.ghost { background: transparent; color: #fff; border-color: rgba(255,255,255,.6); }
+.season.christmas::before, .season.newyear::before { content: ""; position: absolute; inset: 0; z-index: -1; opacity: .55;
+  background-image: radial-gradient(2px 2px at 20px 30px, #fff, transparent), radial-gradient(2px 2px at 90px 80px, #fff, transparent), radial-gradient(1.5px 1.5px at 150px 20px, #fff, transparent), radial-gradient(2px 2px at 60px 140px, #fff, transparent), radial-gradient(1.5px 1.5px at 190px 110px, #fff, transparent);
+  background-size: 220px 170px; animation: snow 14s linear infinite; }
+@keyframes snow { to { background-position: -40px 170px; } }
+.season.halloween::before { content: ""; position: absolute; inset: 0; z-index: -1; background: radial-gradient(240px 140px at 90% 0%, rgba(255,138,31,.28), transparent 70%); }
+@media (min-width: 720px) { .season { padding: 26px; grid-template-columns: 1fr auto; align-items: center; } .season .art { width: 84px; height: 84px; } .season .units, .season .s-sub, .season .actions { grid-column: 1; } .season .s-top { grid-column: 1; } }
+@media (prefers-reduced-motion: reduce) { .season::before { animation: none; } }
+.season-list { display: grid; gap: 14px; }

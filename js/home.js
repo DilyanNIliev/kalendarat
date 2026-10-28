@@ -30,6 +30,10 @@
           <span class="share-row">${UI.shareLinks(shareText)}</span></div>
       </div></section>`;
 
+  // Сезонно отброяване (авто или чрез #christmas, #halloween ...)
+  const seasonItem = Season.pick(now, location.hash.slice(1));
+  const seasonHtml = Season.card(seasonItem);
+
   // Утре
   const tmr = BG.addDays(today, 1);
   const tmrNames = [...new Set(ND.onDate(tmr).flatMap((e) => e.names))];
@@ -76,9 +80,10 @@
 
   UI.mount('', {
     title: 'Календарът',
-    main: todayHtml + tomorrowHtml + cdHtml + upHtml + UI.adBlock('ad-inline', 'Реклама · между блоковете 300×250 / 728×90') + bridgeHtml + vacHtml + UI.adBlock('ad-inline', 'Реклама · между блоковете') + calHtml,
+    main: todayHtml + seasonHtml + tomorrowHtml + cdHtml + upHtml + UI.adBlock('ad-inline', 'Реклама · между блоковете 300×250 / 728×90') + bridgeHtml + vacHtml + UI.adBlock('ad-inline', 'Реклама · между блоковете') + calHtml,
   });
 
+  Season.start(document.querySelector('main'));
   let y = now.getFullYear(), m = now.getMonth();
   const draw = () => {
     document.getElementById('cal-title').textContent = BG.MONTHS[m] + ' ' + y;

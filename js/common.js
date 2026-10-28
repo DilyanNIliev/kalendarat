@@ -96,7 +96,7 @@
       <footer class="site-footer"><div class="wrap">
         <div class="cols">
           <div><h4>Календарът</h4><p style="opacity:.9;max-width:34ch">Официални празници, почивни дни, имени дни и ученически ваканции в България.</p></div>
-          <div><h4>Разгледай</h4><a href="pochivni-dni.html">Почивни дни</a><a href="praznici.html">Празници</a><a href="imeni-dni.html">Имени дни</a><a href="vakancii.html">Ваканции</a></div>
+          <div><h4>Разгледай</h4><a href="pochivni-dni.html">Почивни дни</a><a href="praznici.html">Празници</a><a href="imeni-dni.html">Имени дни</a><a href="vakancii.html">Ваканции</a><a href="sezoni.html">Отброяване до празниците</a></div>
           <div><h4>Информация</h4><a href="info.html#za-nas">За нас</a><a href="info.html#kontakt">Контакт</a><a href="info.html#poveritelnost">Политика за поверителност</a><a href="info.html#biskvitki">Бисквитки</a></div>
         </div>
         <p class="copy">© ${new Date().getFullYear()} Календарът. Данните са информативни, проверявайте в официалните източници.</p>
