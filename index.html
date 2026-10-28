@@ -1,0 +1,46 @@
+<!doctype html>
+<html lang="bg">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Календарът – Хелоуин, почивни дни и имени дни</title>
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+<main class="wrap">
+  <section class="hero">
+    <div id="hero-pumpkin"></div>
+    <h1>Дни до Хелоуин</h1>
+    <p id="hero-sub">31 октомври – нощта, в която духовете излизат на разходка…</p>
+    <div id="countdown" class="countdown" aria-live="off"></div>
+  </section>
+
+  <div class="grid">
+    <section class="card" id="today">
+      <h2>Днес</h2>
+    </section>
+    <section class="card">
+      <h2>Кой има имен ден?</h2>
+      <div id="search-box"></div>
+      <p class="muted" id="today-names"></p>
+    </section>
+  </div>
+
+  <div class="grid">
+    <section class="card">
+      <h2>Предстоящи почивни дни</h2>
+      <ul class="list" id="upcoming"></ul>
+    </section>
+    <section class="card">
+      <h2>Почивни дни по години</h2>
+      <p class="muted">Официални празници, учебни ваканции и идеи за отпуски с най-много почивка.</p>
+      <div class="years" id="year-links"></div>
+    </section>
+  </div>
+</main>
+<script src="js/holidays.js"></script>
+<script src="js/namedays.js"></script>
+<script src="js/common.js"></script>
+<script src="js/home.js"></script>
+</body>
+</html>
