@@ -17,8 +17,8 @@
   const custom = CT.CUSTOMS_BY_TITLE[h.title] || CT.GENERIC_CUSTOM;
   const holiday = CT.holByTitle(h.title);
   const text = `Честит имен ден, ${name}! На много години!`;
-  const wishes = CT.WISHES.imenden.map((w) => w.replace(/\{name\}/g, name));
-  const wishCard = (w) => `<div class="wish"><p>${UI.esc(w)}</p><div class="share-row"><button class="btn ghost sm" data-copy="${UI.esc(w)}">${I.copy}Копирай</button>${UI.shareLinks(w)}</div></div>`;
+  const wishes = CT.wishList('imenden', null, 7).map((w) => ({ t: w.t.replace(/\{name\}/g, name), c: w.c }));
+  const wishCard = (w) => `<div class="wish"><span class="tag national">${CT.CATS[w.c]}</span><p>${UI.esc(w.t).replace(/\n/g, '<br>')}</p><div class="share-row"><button class="btn ghost sm" data-copy="${UI.esc(w.t)}">${I.copy}Копирай</button>${UI.shareLinks(w.t)}</div></div>`;
   const others = hits.slice(1).filter((x) => x.title !== h.title);
 
   UI.mount('names', {

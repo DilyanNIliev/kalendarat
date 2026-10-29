@@ -12,9 +12,9 @@
   const len = Math.round((b - a) / 864e5) + 1;
   const from = BG.addDays(a, -2), to = BG.addDays(b, 2);
   const names = [...new Set(ND.onDate(date).flatMap((e) => e.names))];
-  const wishes = (CT.WISHES[def.wishKey] || CT.WISHES.nacionalen).map((w) => w.replace(/\{name\}/g, ''));
+  const wishes = CT.wishList(def.wishKey, null, 6).map((w) => ({ t: w.t.replace(/\{name\}/g, 'приятелю'), c: w.c }));
   const text = `${def.title} ${y} е на ${BG.fmt(date)}. kalendarat.com`;
-  const wishCard = (w) => `<div class="wish"><p>${UI.esc(w)}</p><div class="share-row"><button class="btn ghost sm" data-copy="${UI.esc(w)}">${I.copy}Копирай</button>${UI.shareLinks(w)}</div></div>`;
+  const wishCard = (w) => `<div class="wish"><span class="tag national">${CT.CATS[w.c]}</span><p>${UI.esc(w.t).replace(/\n/g, '<br>')}</p><div class="share-row"><button class="btn ghost sm" data-copy="${UI.esc(w.t)}">${I.copy}Копирай</button>${UI.shareLinks(w.t)}</div></div>`;
   const yearChips = BG.YEARS.map((yy) => `<a class="chip tab${yy === y ? ' on' : ''}" href="praznik.html?id=${def.id}&year=${yy}" data-go="id=${def.id}" data-y="${yy}">${yy}</a>`).join('');
   const other = CT.HOLIDAYS.filter((h) => h.id !== def.id).slice(0, 8);
 
@@ -34,7 +34,7 @@
     ${UI.adBlock('ad-inline', 'Реклама · между блоковете')}
     <section class="prose"><h2>Обичаи и традиции</h2><ul>${def.customs.map((c) => `<li>${UI.esc(c)}</li>`).join('')}</ul></section>
     ${names.length ? `<section><h2 style="margin-bottom:10px">Имен ден имат</h2><div class="chips">${names.map((n) => `<a class="chip" href="imen-den.html?name=${encodeURIComponent(n)}" data-go="name=${UI.esc(n)}">${UI.esc(n)}</a>`).join('')}</div></section>` : ''}
-    <section><div class="sec-h"><h2>Пожелания</h2><a href="pozhelaniya.html" data-go="cat=${def.wishKey === 'imenden' ? 'imenden' : def.wishKey}">Още пожелания</a></div><div class="wishes two">${wishes.map(wishCard).join('')}</div></section>
+    <section><div class="sec-h"><h2>Пожелания</h2><a href="pozhelaniya.html" data-go="cat=${def.wishKey}">Още пожелания</a></div><div class="wishes two">${wishes.map(wishCard).join('')}</div></section>
     <section><h2 style="margin-bottom:10px">Датата през годините</h2><div class="tbl-wrap"><table class="tbl"><tbody>${BG.YEARS.map((yy) => `<tr><td class="dt">${yy}</td><td>${BG.fmt(def.date(yy))}, ${BG.WEEKDAYS[def.date(yy).getDay()]}</td></tr>`).join('')}</tbody></table></div></section>
     <section><h2 style="margin-bottom:10px">Други празници</h2><div class="chips">${other.map((h) => `<a class="chip" href="praznik.html?id=${h.id}" data-go="id=${h.id}">${UI.esc(h.title)}</a>`).join('')}</div></section>`,
   });
