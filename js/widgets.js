@@ -35,7 +35,7 @@
       <p class="muted" style="font-size:.9rem">Вземи отпуск ${range}. Почиваш от ${BG.fmt(b.from)} до ${BG.fmt(b.to)}.</p></article>`;
   }
 
-  const legend = `<div class="legend"><span><i class="sw dayoff"></i>Почивен ден</span><span><i class="sw idea"></i>Ден за отпуск (мост)</span><span><i class="sw vac"></i>Ваканция</span><span><i class="sw ring"></i>Ваканция и почивен ден (контур)</span><span><i class="kd church"></i>Църковен празник (точка)</span><span><i class="kd name"></i>Имен ден (точка)</span><span><i class="kd clock"></i>Смяна на часа – лятно/зимно време (празно кръгче)</span><span><i class="kd equinox"></i>Равноденствие (празно кръгче)</span></div>`;
+  const legend = `<div class="legend"><span><i class="sw dayoff"></i>Почивен ден</span><span><i class="sw idea"></i>Ден за отпуск (мост)</span><span><i class="sw ring"></i>Ваканция (контур, върху всеки ден)</span><span><i class="kd church"></i>Църковен празник (точка)</span><span><i class="kd name"></i>Имен ден (точка)</span><span><i class="kd clock"></i>Смяна на часа – лятно/зимно време (празно кръгче)</span><span><i class="kd equinox"></i>Равноденствие (празно кръгче)</span></div>`;
 
   // Месечен календар с цветове и точки; clickable=true показва подробности
   function monthCal(el, y, m, opts) {
@@ -53,9 +53,9 @@
     for (let i = 0; i < lead; i++) cells += '<div class="blank"></div>';
     for (let d = 1; d <= n; d++) {
       const dt = new Date(y, m, d), k = BG.key(dt), list = byKey[k] || [];
-      const off = !!BG.offName(dt), we = BG.isWeekend(dt), vac = !!vacKeys[k] && !we && !off, vr = !!vacKeys[k] && (we || off), idea = ideaKeys.has(k) && !off && !we;
+      const off = !!BG.offName(dt), we = BG.isWeekend(dt), vr = !!vacKeys[k], idea = ideaKeys.has(k) && !off && !we;
       const dots = [...new Set(list.flatMap((e) => e.types).filter((t) => t === 'church' || t === 'name' || t === 'clock' || t === 'equinox'))];
-      cells += `<button type="button" class="day${off ? ' off' : ''}${we ? ' we' : ''}${vac ? ' vac' : ''}${vr ? ' vr' : ''}${idea ? ' idea' : ''}${k === todayK ? ' today' : ''}" data-k="${k}" aria-label="${d} ${BG.MONTHS_GEN[m]}"><span class="num">${d}</span><span class="dots">${dots.slice(0, 3).map((t) => `<i class="${t}"></i>`).join('')}</span></button>`;
+      cells += `<button type="button" class="day${off ? ' off' : ''}${we ? ' we' : ''}${vr ? ' vr' : ''}${idea ? ' idea' : ''}${k === todayK ? ' today' : ''}" data-k="${k}" aria-label="${d} ${BG.MONTHS_GEN[m]}"><span class="num">${d}</span><span class="dots">${dots.slice(0, 3).map((t) => `<i class="${t}"></i>`).join('')}</span></button>`;
     }
     el.innerHTML = `<div class="cal">${cells}</div>`;
     if (!opts.clickable) return;
