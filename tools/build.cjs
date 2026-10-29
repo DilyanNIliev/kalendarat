@@ -13,6 +13,7 @@ const ROOT = path.resolve(__dirname, '..');
 const ORIGIN = (process.env.ORIGIN || 'https://dilyanniliev.github.io').replace(/\/$/, '');
 const BASE = process.env.BASE || '/kalendarat/';
 const SITE = 'kalendarat';
+const OUT = process.env.OUT ? path.resolve(ROOT, process.env.OUT) : ROOT; // къде да се запишат готовите страници
 
 // данните на сайта са едни и същи за браузъра и за изграждането
 global.window = global;
@@ -109,7 +110,8 @@ function shell(p, prerender) {
 const MIME = { '.js': 'text/javascript', '.css': 'text/css', '.svg': 'image/svg+xml', '.png': 'image/png', '.html': 'text/html; charset=utf-8', '.xml': 'application/xml', '.txt': 'text/plain' };
 
 (async () => {
-  fs.writeFileSync(path.join(ROOT, 'favicon.svg'), `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 40 40"><rect width="40" height="40" rx="11" fill="#7c3aed"/><rect x="8" y="10" width="24" height="22" rx="4" fill="#fff"/><rect x="8" y="10" width="24" height="7" rx="3.5" fill="#c4352b"/><g fill="#7c3aed"><circle cx="14" cy="24" r="1.8"/><circle cx="20" cy="24" r="1.8"/><circle cx="14" cy="29" r="1.8"/><circle cx="20" cy="29" r="1.8"/></g><circle cx="26" cy="24" r="1.8" fill="#d9a441"/></svg>`);
+  fs.mkdirSync(OUT, { recursive: true });
+  fs.writeFileSync(path.join(OUT, 'favicon.svg'), `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 40 40"><rect width="40" height="40" rx="11" fill="#7c3aed"/><rect x="8" y="10" width="24" height="22" rx="4" fill="#fff"/><rect x="8" y="10" width="24" height="7" rx="3.5" fill="#c4352b"/><g fill="#7c3aed"><circle cx="14" cy="24" r="1.8"/><circle cx="20" cy="24" r="1.8"/><circle cx="14" cy="29" r="1.8"/><circle cx="20" cy="29" r="1.8"/></g><circle cx="26" cy="24" r="1.8" fill="#d9a441"/></svg>`);
   const html = new Map(pages.map((p) => [BASE + p.path, shell(p)]));
   const server = http.createServer((req, res) => {
     const u = decodeURIComponent(req.url.split('?')[0]);
@@ -135,7 +137,7 @@ const MIME = { '.js': 'text/javascript', '.css': 'text/css', '.svg': 'image/svg+
       return '<!doctype html>\n' + document.documentElement.outerHTML;
     });
     out = out.replace(/<html([^>]*?)\sdata-(?:mode|skin)="[^"]*"/g, '<html$1');
-    const dir = path.join(ROOT, p.path); fs.mkdirSync(dir, { recursive: true });
+    const dir = path.join(OUT, p.path); fs.mkdirSync(dir, { recursive: true });
     fs.writeFileSync(path.join(dir, 'index.html'), out);
   }
   if (errors.length) console.log('JS грешки:', errors);
@@ -143,14 +145,15 @@ const MIME = { '.js': 'text/javascript', '.css': 'text/css', '.svg': 'image/svg+
   // og.png
   const og = await ctx.newPage(); await og.setViewportSize({ width: 1200, height: 630 });
   await og.setContent(`<body style="margin:0;width:1200px;height:630px;background:linear-gradient(135deg,#2b1048,#7c3aed);color:#fff;font-family:Manrope,system-ui,sans-serif;display:flex;flex-direction:column;justify-content:center;padding:0 90px;box-sizing:border-box"><div style="font-size:96px;font-weight:800;letter-spacing:-2px">kalendar<span style="color:#ff8a7e">at</span></div><div style="font-size:42px;margin-top:20px;max-width:900px;line-height:1.3">Почивни дни, празници, имени дни и ученически ваканции в България</div></body>`);
-  await og.screenshot({ path: path.join(ROOT, 'og.png') });
+  await og.screenshot({ path: path.join(OUT, 'og.png') });
   await browser.close(); server.close();
 
   // sitemap, robots, 404
   const d = today.toISOString().slice(0, 10);
-  fs.writeFileSync(path.join(ROOT, 'sitemap.xml'), `<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n${pages.map((p) => `  <url><loc>${abs(p.path)}</loc><lastmod>${d}</lastmod><priority>${p.pri.toFixed(2)}</priority></url>`).join('\n')}\n</urlset>\n`);
-  fs.writeFileSync(path.join(ROOT, 'robots.txt'), `User-agent: *\nAllow: /\n\nSitemap: ${abs('sitemap.xml')}\n`);
-  fs.writeFileSync(path.join(ROOT, '404.html'), `<!doctype html><html lang="bg"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><base href="${BASE}"><title>Страницата не е намерена | ${SITE}</title><meta name="robots" content="noindex"><link rel="stylesheet" href="css/style.css?v=${ver}"></head><body><main class="wrap" style="padding-block:64px"><h1>Страницата не е намерена</h1><p class="muted" style="margin:12px 0 20px">Адресът не съществува или е преместен.</p><a class="btn" href="./">Към началото</a></main></body></html>`);
-  fs.writeFileSync(path.join(ROOT, '.nojekyll'), '');
+  fs.writeFileSync(path.join(OUT, 'sitemap.xml'), `<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n${pages.map((p) => `  <url><loc>${abs(p.path)}</loc><lastmod>${d}</lastmod><priority>${p.pri.toFixed(2)}</priority></url>`).join('\n')}\n</urlset>\n`);
+  fs.writeFileSync(path.join(OUT, 'robots.txt'), `User-agent: *\nAllow: /\n\nSitemap: ${abs('sitemap.xml')}\n`);
+  fs.writeFileSync(path.join(OUT, '404.html'), `<!doctype html><html lang="bg"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><base href="${BASE}"><title>Страницата не е намерена | ${SITE}</title><meta name="robots" content="noindex"><link rel="stylesheet" href="css/style.css?v=${ver}"></head><body><main class="wrap" style="padding-block:64px"><h1>Страницата не е намерена</h1><p class="muted" style="margin:12px 0 20px">Адресът не съществува или е преместен.</p><a class="btn" href="./">Към началото</a></main></body></html>`);
+  fs.writeFileSync(path.join(OUT, '.nojekyll'), '');
+  if (OUT !== ROOT) { ['css', 'js'].forEach((d) => fs.cpSync(path.join(ROOT, d), path.join(OUT, d), { recursive: true })); }
   console.log(`Готово: ${pages.length} страници, версия ${ver}, адрес ${ORIGIN}${BASE}`);
 })();
