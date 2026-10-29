@@ -1,7 +1,10 @@
 // Изгражда статичния сайт: чисти адреси, SEO мета данни, предварително изградено (prerendered) съдържание,
 // sitemap.xml, robots.txt, 404.html, favicon и og.png.
 // Употреба:  node tools/build.cjs
-//   ORIGIN=https://kalendarat.com BASE=/ node tools/build.cjs     (за собствен домейн)
+//   OUT=dist            папка за резултата (по подразбиране dist)
+//   ORIGIN=https://kalendarat.com   домейнът за каноничните връзки и sitemap
+//   NOINDEX=1           за тестово копие (GitHub Pages): забранява индексирането
+// Връзките и файловете са относителни, затова една и съща изградена папка работи на домейн и в подпапка.
 // Изисква Playwright (npm i -D playwright && npx playwright install chromium).
 const fs = require('fs');
 const path = require('path');
@@ -10,10 +13,11 @@ const crypto = require('crypto');
 const { chromium } = require('playwright');
 
 const ROOT = path.resolve(__dirname, '..');
-const ORIGIN = (process.env.ORIGIN || 'https://dilyanniliev.github.io').replace(/\/$/, '');
-const BASE = process.env.BASE || '/kalendarat/';
+const ORIGIN = (process.env.ORIGIN || 'https://kalendarat.com').replace(/\/$/, '');
+const NOINDEX = !!process.env.NOINDEX;
+const BASE = '/'; // само за вътрешния сървър при изграждането
 const SITE = 'kalendarat';
-const OUT = process.env.OUT ? path.resolve(ROOT, process.env.OUT) : ROOT; // къде да се запишат готовите страници
+const OUT = path.resolve(ROOT, process.env.OUT || 'dist'); // къде да се запишат готовите страници
 
 // данните на сайта са едни и същи за браузъра и за изграждането
 global.window = global;
@@ -69,39 +73,40 @@ const LIBS = ['holidays', 'namedays', 'content', 'routes', 'common', 'widgets', 
 const bundle = LIBS.map((f) => `/* ${f}.js */\n` + read(`js/${f}.js`)).join('\n');
 fs.writeFileSync(path.join(ROOT, 'js/bundle.js'), bundle);
 const ver = crypto.createHash('md5').update(bundle + read('css/style.css') + pages.map((p) => read(`js/${p.script}.js`)).join('')).digest('hex').slice(0, 8);
-const abs = (p) => ORIGIN + BASE + p;
+const abs = (p) => ORIGIN + '/' + p;
+const rootOf = (p) => '../'.repeat(p.split('/').filter(Boolean).length);
 
 function shell(p, prerender) {
   const url = abs(p.path);
   const ld = [];
   if (p.type === 'home') ld.push({ '@context': 'https://schema.org', '@type': 'WebSite', name: SITE, url: abs(''), inLanguage: 'bg', potentialAction: { '@type': 'SearchAction', target: abs('imeni-dni/') + '?q={search_term_string}', 'query-input': 'required name=search_term_string' } });
   else ld.push({ '@context': 'https://schema.org', '@type': 'BreadcrumbList', itemListElement: [{ '@type': 'ListItem', position: 1, name: 'Начало', item: abs('') }].concat((p.crumbs || []).map(([n, pp], i) => ({ '@type': 'ListItem', position: i + 2, name: n, item: abs(pp) }))) });
-  const page = Object.assign({ type: p.type }, p.page || {});
+  const root = rootOf(p.path);
+  const page = Object.assign({ type: p.type, root }, p.page || {});
   return `<!doctype html>
 <html lang="bg">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<base href="${BASE}">
 <title>${esc(p.title)}</title>
 <meta name="description" content="${esc(p.desc)}">
 <link rel="canonical" href="${url}">
-<meta name="robots" content="index, follow, max-image-preview:large">
+<meta name="robots" content="${NOINDEX ? 'noindex, nofollow' : 'index, follow, max-image-preview:large'}">
 <meta name="theme-color" content="#7c3aed">
 <meta property="og:type" content="website"><meta property="og:site_name" content="${SITE}"><meta property="og:locale" content="bg_BG">
 <meta property="og:title" content="${esc(p.title)}"><meta property="og:description" content="${esc(p.desc)}"><meta property="og:url" content="${url}">
 <meta property="og:image" content="${abs('og.png')}"><meta property="og:image:width" content="1200"><meta property="og:image:height" content="630">
 <meta name="twitter:card" content="summary_large_image"><meta name="twitter:title" content="${esc(p.title)}"><meta name="twitter:description" content="${esc(p.desc)}"><meta name="twitter:image" content="${abs('og.png')}">
-<link rel="icon" href="favicon.svg" type="image/svg+xml">
+<link rel="icon" href="${root}favicon.svg" type="image/svg+xml">
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;600;700;800&display=swap">
-<link rel="stylesheet" href="css/style.css?v=${ver}">
+<link rel="stylesheet" href="${root}css/style.css?v=${ver}">
 <script type="application/ld+json">${JSON.stringify(ld)}</script>
 <script>window.__PAGE=${JSON.stringify(page)};</script>
 </head>
 <body>
-<script src="js/bundle.js?v=${ver}"></script>
-<script src="js/${p.script}.js?v=${ver}"></script>
+<script src="${root}js/bundle.js?v=${ver}"></script>
+<script src="${root}js/${p.script}.js?v=${ver}"></script>
 </body>
 </html>
 `;
@@ -151,8 +156,8 @@ const MIME = { '.js': 'text/javascript', '.css': 'text/css', '.svg': 'image/svg+
   // sitemap, robots, 404
   const d = today.toISOString().slice(0, 10);
   fs.writeFileSync(path.join(OUT, 'sitemap.xml'), `<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n${pages.map((p) => `  <url><loc>${abs(p.path)}</loc><lastmod>${d}</lastmod><priority>${p.pri.toFixed(2)}</priority></url>`).join('\n')}\n</urlset>\n`);
-  fs.writeFileSync(path.join(OUT, 'robots.txt'), `User-agent: *\nAllow: /\n\nSitemap: ${abs('sitemap.xml')}\n`);
-  fs.writeFileSync(path.join(OUT, '404.html'), `<!doctype html><html lang="bg"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><base href="${BASE}"><title>Страницата не е намерена | ${SITE}</title><meta name="robots" content="noindex"><link rel="stylesheet" href="css/style.css?v=${ver}"></head><body><main class="wrap" style="padding-block:64px"><h1>Страницата не е намерена</h1><p class="muted" style="margin:12px 0 20px">Адресът не съществува или е преместен.</p><a class="btn" href="./">Към началото</a></main></body></html>`);
+  fs.writeFileSync(path.join(OUT, 'robots.txt'), NOINDEX ? 'User-agent: *\nDisallow: /\n' : `User-agent: *\nAllow: /\n\nSitemap: ${abs('sitemap.xml')}\n`);
+  fs.writeFileSync(path.join(OUT, '404.html'), `<!doctype html><html lang="bg"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>Страницата не е намерена | ${SITE}</title><meta name="robots" content="noindex"><style>body{margin:0;font:16px/1.6 system-ui,sans-serif;background:#f6f2fd;color:#1f1236}main{max-width:560px;margin:0 auto;padding:72px 16px}a{display:inline-block;background:#6d28d9;color:#fff;padding:12px 20px;border-radius:12px;text-decoration:none;font-weight:700}</style></head><body><main><h1>Страницата не е намерена</h1><p>Адресът не съществува или е преместен.</p><p><a href="${ORIGIN}/">Към началото</a></p></main></body></html>`);
   fs.writeFileSync(path.join(OUT, '.nojekyll'), '');
   if (OUT !== ROOT) { ['css', 'js'].forEach((d) => fs.cpSync(path.join(ROOT, d), path.join(OUT, d), { recursive: true })); }
   console.log(`Готово: ${pages.length} страници, версия ${ver}, адрес ${ORIGIN}${BASE}`);

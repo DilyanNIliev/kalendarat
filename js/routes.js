@@ -21,8 +21,10 @@
   const INFO = { 'za-nas': 'За нас', kontakt: 'Контакт', 'politika-za-poveritelnost': 'Политика за поверителност', biskvitki: 'Бисквитки' };
   const DEFAULT_YEAR = 2027;
 
-  const R = {
-    home: () => './',
+  // относителен път до корена на сайта (подава се от страницата), за да работи и в подпапка, и на домейн
+  const P = ((window.__PAGE || {}).root) || '';
+  const R0 = {
+    home: () => '',
     days: (y) => `pochivni-dni-${y || DEFAULT_YEAR}/`,
     holidays: () => 'praznici/',
     church: () => 'cherkoven-kalendar/',
@@ -34,6 +36,8 @@
     season: () => 'otbroyavane/',
     info: (k) => `${k}/`,
   };
+  const R = {};
+  Object.keys(R0).forEach((k) => { R[k] = (...a) => { const v = R0[k](...a); return v === '' ? (P || './') : P + v; }; });
   // Връзка за име: една група → директно към страницата, повече → към списъка с търсене
   const nameHref = (name) => {
     const g = groupsFor(name);

@@ -3,25 +3,27 @@
 Статичен сайт за почивни дни, празници, имени дни, ваканции и пожелания в България.
 
 ## Как е устроен
-- `js/*.js`, `css/style.css` – изходният код (данни, страници, стилове).
-- `tools/build.cjs` – изгражда чистите адреси (`/pochivni-dni-2027/`, `/imen-den/ivanovden/`, `/praznik/velikden/` …),
-  записва в тях предварително изградено съдържание (prerender с Playwright), SEO мета данни (title, description, canonical,
-  Open Graph, JSON-LD), `sitemap.xml`, `robots.txt`, `404.html`, `favicon.svg`, `og.png` и `js/bundle.js`.
-- Генерираните папки и файлове са в корена на репото и се качват на GitHub Pages директно.
+- `js/*.js`, `css/style.css` – изходният код (данни, страници, стилове). Само това се редактира.
+- `tools/build.cjs` – изгражда сайта в папка `dist/`: чисти адреси (`/pochivni-dni-2027/`, `/imen-den/ivanovden/`, `/praznik/velikden/` …),
+  предварително изградено съдържание (prerender с Playwright), SEO мета данни (title, description, canonical, Open Graph, JSON-LD),
+  `sitemap.xml`, `robots.txt`, `404.html`, `favicon.svg`, `og.png`.
+- Връзките и файловете са относителни, затова изградената папка работи и на домейн (kalendarat.com), и в подпапка (GitHub Pages).
+- Каноничните връзки и sitemap винаги са към `https://kalendarat.com`.
 
-## Изграждане
+## Автоматично публикуване (`.github/workflows/deploy.yml`)
+При всяко сливане в `main` GitHub изгражда сайта и:
+1. публикува копие в **GitHub Pages** (с `noindex`, за преглед) – Settings → Pages → Source: **GitHub Actions**;
+2. качва истинския сайт на **хостинга по FTP** – ако е включено (вижте по-долу).
+
+### Връзка с хостинга (FTP)
+В репото: Settings → Secrets and variables → Actions.
+- Secrets: `FTP_SERVER` (напр. `ftp.вашият-хостинг.bg`), `FTP_USERNAME`, `FTP_PASSWORD`.
+- Variables: `DEPLOY_HOSTING` = `true`; по желание `FTP_DIR` (по подразбиране `/public_html/`) и `FTP_PROTOCOL` (`ftp`, `ftps` или `ftps-legacy`).
+
+## Изграждане на компютър
 ```bash
-npm install            # само първия път (Playwright)
-npx playwright install chromium
-npm run build          # за GitHub Pages: https://dilyanniliev.github.io/kalendarat/
+npm install && npx playwright install chromium
+npm run build                      # резултат в dist/
+NOINDEX=1 OUT=dist-pages npm run build   # копие без индексиране
 ```
-
-За собствен домейн (канонични адреси и sitemap към kalendarat.com):
-```bash
-ORIGIN=https://kalendarat.com BASE=/ npm run build
-```
-След това добави файл `CNAME` със съдържание `kalendarat.com` и задай домейна в Settings → Pages.
-
-За локален преглед: `ORIGIN=http://localhost:8000 BASE=/ npm run build && python3 -m http.server 8000`.
-
-Всяка промяна в `js/` или `css/` изисква ново изграждане, за да се обновят страниците, картата на сайта и версията на файловете.
+Локален преглед: `npm run build && cd dist && python3 -m http.server 8000`.
