@@ -212,7 +212,6 @@ a.evt:hover { border-color: var(--primary); }
 .cal button.day { border: 1px solid transparent; border-radius: 10px; background: var(--bg); color: var(--ink); font: inherit; font-weight: 700; cursor: pointer; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 3px; padding: 0; }
 .cal button.day.we { color: var(--red); }
 .cal button.day.off { background: var(--red-soft); color: var(--ink); }
-.cal button.day.vac { background: var(--purple-soft); }
 .cal button.day.vr { box-shadow: inset 0 0 0 2.5px var(--purple); }
 .cal button.day.today { outline: 2px solid var(--primary); outline-offset: 1px; }
 .cal button.day.sel { background: var(--primary); color: var(--on-primary); }
