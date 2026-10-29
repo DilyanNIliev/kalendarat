@@ -43,8 +43,8 @@
 
   function card(item) {
     const { d, t } = item;
-    const link = d.go ? `<a class="btn s-btn" href="${d.go[0]}" data-go="${d.go[1]}=${d.go[2]}">${d.go[3]} ${UI.ICON.arrow}</a>` : '';
-    const wish = d.wish ? `<a class="btn s-btn ghost" href="pozhelaniya.html" data-go="cat=${d.wish}">${UI.ICON.heart}Пожелания</a>` : '';
+    const link = d.go ? `<a class="btn s-btn" href="${RT.R.holiday(d.go[2])}">${d.go[3]} ${UI.ICON.arrow}</a>` : '';
+    const wish = d.wish ? `<a class="btn s-btn ghost" href="${RT.R.wishes(d.wish)}">${UI.ICON.heart}Пожелания</a>` : '';
     return `<section class="season ${d.id}" data-t="${t.getTime()}" data-done="${UI.esc(d.done)}" aria-label="Отброяване до ${UI.esc(d.name)}">
       <div class="s-top">${ART[d.id]}<div><div class="s-kicker">${UI.esc(d.title)}</div><div class="s-date">${BG.fmt(t)} ${t.getFullYear()}</div></div></div>
       <div class="units" data-units></div>

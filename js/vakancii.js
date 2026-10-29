@@ -4,8 +4,9 @@
   const days = (v) => Math.round((v.to - v.from) / 864e5) + 1;
   UI.mount('vac', {
     title: 'Ученически ваканции 2026/2027',
-    main: `<div class="crumbs"><a href="index.html">Начало</a> / Ваканции</div>
-    <header class="hero"><h1>Ученически ваканции 2026/2027</h1><p class="muted" style="max-width:62ch">Графикът на ваканциите и неучебните дни по класове. Следващата ваканция е подчертана.</p>
+    year: 2027, month: 0,
+    main: `<div class="crumbs"><a href="${RT.R.home()}">Начало</a> / Ваканции</div>
+    <header class="hero"><h1>Ученически ваканции 2026/2027 – график по класове</h1><p class="muted" style="max-width:62ch">Графикът на ваканциите и неучебните дни по класове. Следващата ваканция е подчертана.</p>
       <div class="chips"><span class="chip tab on">2026/2027</span><span class="chip tab" style="opacity:.6">2027/2028 – очаква се</span></div></header>
     <section><div class="tbl-wrap"><table class="tbl stack"><thead><tr><th>Ваканция</th><th>От</th><th>До</th><th>Класове</th><th>Дни</th></tr></thead><tbody>
       ${CT.VAC.map((v, i) => `<tr${i === nextIdx ? ' style="background:var(--purple-soft)"' : ''}><td data-l="Ваканция"><b>${UI.esc(v.name)}</b>${i === nextIdx ? '<span class="badge-next">Следва</span>' : ''}</td><td class="dt" data-l="От">${BG.fmtFull(v.from)}</td><td class="dt" data-l="До">${BG.fmtFull(v.to)}</td><td data-l="Класове">${UI.esc(v.grades)}</td><td data-l="Дни" class="num">${days(v)}</td></tr>`).join('')}</tbody></table></div></section>

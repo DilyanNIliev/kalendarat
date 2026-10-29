@@ -8,11 +8,11 @@
   function eventCard(ev, now) {
     const t = primaryType(ev);
     const diff = Math.round((ev.date - ND.startOfDay(now)) / 864e5);
-    const href = ev.id ? `praznik.html?id=${ev.id}` : ev.types.includes('name') ? `imen-den.html?name=${encodeURIComponent((ev.names || [])[0] || '')}` : '';
-    const dataGo = ev.id ? `data-go="id=${ev.id}"` : ev.types.includes('name') && ev.names ? `data-go="name=${U.esc(ev.names[0])}"` : '';
+    const g = !ev.id && ev.types.includes('name') ? RT.GROUPS.find((x) => x.title === ev.title) : null;
+    const href = ev.id ? RT.R.holiday(ev.id) : g ? RT.R.group(g.slug) : '';
     const body = `<div class="dt ${t}"><b>${ev.date.getDate()}</b><small>${BG.MONTHS_GEN[ev.date.getMonth()].slice(0, 3)}</small></div>
       <div class="tx"><strong>${U.esc(ev.title)}</strong><span>${ev.types.map((x) => TYPE_LABEL[x]).join(' · ')} · ${U.daysAway(diff)}</span></div>`;
-    return href ? `<a class="evt" href="${href}" ${dataGo}>${body}</a>` : `<div class="evt">${body}</div>`;
+    return href ? `<a class="evt" href="${href}">${body}</a>` : `<div class="evt">${body}</div>`;
   }
 
   // лента от дни: from..to, като leaveKeys са дните за отпуск
@@ -77,25 +77,37 @@
     show(opts.select || (BG.key(new Date()).slice(0, 7) === y + '-' + BG.pad(m + 1) ? todayK : y + '-' + BG.pad(m + 1) + '-01'));
   }
 
-  // Цялостен календар за година (всички месеци) – вмъква се на всяка страница
-  const yearCalHtml = () => `<section aria-labelledby="cal-h" id="year-cal"><div class="sec-h"><h2 id="cal-h">Календар <span id="cal-year"></span></h2>${legend}</div>
+  // Цялостен календар за година. Компактен режим: 3 месеца + бутон за цялата година; рисува се чак при скрол
+  const yearCalHtml = (full) => `<section aria-labelledby="cal-h" id="year-cal"><div class="sec-h"><h2 id="cal-h">Календар <span id="cal-year"></span></h2>${legend}</div>
     <div class="cal-head"><button class="ibtn" id="prev" aria-label="Предишна година">${U.ICON.left}</button><span class="muted">Изберете ден за подробности</span><button class="ibtn" id="next" aria-label="Следваща година">${U.ICON.right}</button></div>
-    <div class="year-grid" id="year-grid"></div></section>`;
-  function initYearCal(year) {
+    <div class="year-grid" id="year-grid" style="min-height:${full ? 520 : 360}px"></div>
+    <div class="cal-more" id="cal-more" hidden><button type="button" class="btn ghost" id="cal-expand">Покажи цялата година</button></div></section>`;
+  function initYearCal(year, opts) {
+    opts = opts || {};
     const now = new Date();
     const first = BG.YEARS[0], last = BG.YEARS[BG.YEARS.length - 1];
     let y = Math.min(last, Math.max(first, year || now.getFullYear()));
+    let compact = !!opts.compact;
+    const start = () => { const m = opts.month !== undefined ? opts.month : (y === now.getFullYear() ? now.getMonth() : 0); return Math.min(m, 9); };
     const draw = () => {
       document.getElementById('cal-year').textContent = y;
-      document.getElementById('year-grid').innerHTML = BG.MONTHS.map((name, i) => `<section class="panel month-card${y === now.getFullYear() && i === now.getMonth() ? ' current' : ''}"><h3>${name}</h3><div id="mc${i}"></div><div class="day-detail" id="md${i}" aria-live="polite"></div></section>`).join('');
-      BG.MONTHS.forEach((_, i) => monthCal(document.getElementById('mc' + i), y, i, {
+      const s = start(), months = compact ? [s, s + 1, s + 2] : BG.MONTHS.map((_, i) => i);
+      document.getElementById('year-grid').innerHTML = months.map((i) => `<section class="panel month-card${y === now.getFullYear() && i === now.getMonth() ? ' current' : ''}"><h3>${BG.MONTHS[i]}</h3><div id="mc${i}"></div><div class="day-detail" id="md${i}" aria-live="polite"></div></section>`).join('');
+      document.getElementById('year-grid').style.minHeight = '';
+      months.forEach((i) => monthCal(document.getElementById('mc' + i), y, i, {
         clickable: true, noInitial: true, detail: document.getElementById('md' + i),
-        onSelect: () => BG.MONTHS.forEach((__, j) => { if (j !== i) { document.getElementById('md' + j).innerHTML = ''; document.querySelectorAll('#mc' + j + ' .day.sel').forEach((b) => b.classList.remove('sel')); } }),
+        onSelect: () => months.forEach((j) => { if (j !== i) { document.getElementById('md' + j).innerHTML = ''; document.querySelectorAll('#mc' + j + ' .day.sel').forEach((b) => b.classList.remove('sel')); } }),
       }));
+      document.getElementById('cal-more').hidden = !compact;
     };
     document.getElementById('prev').onclick = () => { if (y > first) { y--; draw(); } };
     document.getElementById('next').onclick = () => { if (y < last) { y++; draw(); } };
-    draw();
+    document.getElementById('cal-expand').onclick = () => { compact = false; draw(); };
+    const host = document.getElementById('year-grid');
+    if ('IntersectionObserver' in window && !window.__PRERENDER) {
+      const io = new IntersectionObserver((e) => { if (e.some((x) => x.isIntersecting)) { io.disconnect(); draw(); } }, { rootMargin: '400px' });
+      io.observe(host);
+    } else if (!window.__PRERENDER) draw();
   }
 
   window.W = { yearCalHtml, initYearCal, tag, eventCard, strip, bridgeCard, legend, monthCal, TYPE_LABEL, primaryType };

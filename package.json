@@ -1,0 +1,7 @@
+{
+  "name": "kalendarat",
+  "private": true,
+  "description": "kalendarat – почивни дни, празници, имени дни и ваканции",
+  "scripts": { "build": "node tools/build.cjs" },
+  "devDependencies": { "playwright": "^1.48.0" }
+}
