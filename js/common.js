@@ -94,10 +94,13 @@
   };
 
   // ресурси за подсказки при търсене
-  function searchIndex() { return [...new Set([...ND.allNames(), ...CT.HOLIDAYS.map((h) => h.title)])]; }
+  function searchIndex() { return [...new Set([...ND.allNames(), ...CT.HOLIDAYS.map((h) => h.title), ...RT.RECIP.map((x) => x.h1)])]; }
   function runSearch(q) {
     q = q.trim(); if (!q) return;
     const ql = q.toLowerCase();
+    const rc = RT.recipByQuery(q);
+    if (rc) { location.href = R.wishRec(rc.slug); return; }
+    if (/рожден|юбилей/.test(ql)) { location.href = R.wishes('rozhden'); return; }
     const h = CT.HOLIDAYS.find((x) => x.title.toLowerCase() === ql);
     if (h) { location.href = R.holiday(h.id); return; }
     if (RT.groupsFor(q).length) { location.href = RT.nameHref(q); return; }
