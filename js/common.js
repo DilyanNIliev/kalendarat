@@ -141,7 +141,7 @@
           <div><h4>Разгледай</h4><a href="${R.days()}">Почивни дни</a><a href="${R.holidays()}">Празници</a><a href="${R.names()}">Имени дни</a><a href="${R.church()}">Църковен календар</a><a href="${R.vac()}">Ваканции</a><a href="${R.wishes()}">Пожелания</a><a href="${R.season()}">Отброяване до празниците</a></div>
           <div><h4>Информация</h4>${Object.entries(RT.INFO).map(([k, t]) => `<a href="${R.info(k)}">${t}</a>`).join('')}<a href="${R.info('biskvitki')}" id="cookie-settings">Настройки за бисквитки</a></div>
         </div>
-        <p class="copy">© ${new Date().getFullYear()} kalendarat. Данните са информативни, проверявайте в официалните източници.</p>
+        <p class="copy">© ${new Date().getFullYear()} kalendarat. Данните са информативни, проверявайте в официалните източници.${(window.__PAGE || {}).updated ? ` <span class="updated">Актуализирано: ${(window.__PAGE || {}).updated}</span>` : ''}</p>
       </div></footer>
       ${ADS ? `<aside class="ad ad-sticky" id="sticky" aria-label="Реклама"><span class="ad-label">Лепкава реклама 320×50</span><button aria-label="Затвори рекламата" id="sx">${ICON.close}</button></aside>` : ''}`;
     keep.forEach((e) => document.body.appendChild(e));

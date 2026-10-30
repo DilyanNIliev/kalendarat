@@ -357,3 +357,5 @@ table.tbl { width: 100%; border-collapse: collapse; font-size: .95rem; }
 .wish .tag { justify-self: start; }
 .prose h2 { font-size: 1.25rem; margin-top: 8px; }
 .prose a { word-break: break-word; }
+.answer { background: var(--primary-soft); border-left: 4px solid var(--primary); border-radius: 10px; padding: 12px 16px; font-weight: 600; max-width: 70ch; }
+.updated { font-size: .8rem; opacity: .75; margin-top: 6px; }

@@ -29,7 +29,7 @@
     title: `${def.title} ${y}`,
     year: y, month: date.getMonth(),
     main: `<div class="crumbs"><a href="${R.home()}">Начало</a> / <a href="${R.holidays()}">Празници</a> / ${UI.esc(def.title)}</div>
-    <header class="hero"><h1>${UI.esc(def.title)} ${y} – дата, почивни дни и обичаи</h1>
+    <header class="hero"><h1>${UI.esc(def.title)} ${y} – дата, почивни дни и обичаи</h1><p class="answer">${UI.esc(def.title)} през ${y} г. е на <b>${BG.fmt(date)}</b>, ${wd}. ${off ? `Официален почивен ден${len > 1 ? ` – общо ${len} дни почивка подред (${BG.fmt(a)} – ${BG.fmt(b)})` : ''}.` : 'Не е официален почивен ден.'}</p>
       <div class="date-line"><span class="date-pill num">${I[def.type === 'church' ? 'church' : 'dayoff']}${date.getDate()} ${BG.MONTHS_GEN[date.getMonth()]} ${y}</span><span class="muted">${wd[0].toUpperCase() + wd.slice(1)} · ${UI.daysAway(Math.round((date - ND.startOfDay(now)) / 864e5)).replace('след -', 'преди ')}</span></div>
       <div class="chips">${def.type === 'church' ? `<span class="tag church">${I.church}Църковен празник</span>` : ''}${off ? `<span class="tag dayoff">${I.dayoff}Почивен ден</span>` : '<span class="tag national">Не е почивен ден</span>'}</div>
       <div class="share-row">${UI.shareLinks(text)}</div>

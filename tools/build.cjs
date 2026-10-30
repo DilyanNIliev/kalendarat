@@ -56,7 +56,7 @@ CT.HOLIDAYS.forEach((h) => {
   const d = h.date(y);
   add({ path: `praznik/${h.id}/`, script: 'holiday', type: 'holiday', page: { id: h.id }, title: `${h.title} ${y} – дата, почивни дни, обичаи | ${SITE}`, desc: `${h.title} през ${y} г. е на ${fmt(d)}, ${BG.WEEKDAYS[d.getDay()]}.${BG.offName(d) ? ' Официален почивен ден.' : ''} Обичаи, традиции, пожелания и дати през годините.`, pri: 0.8, crumbs: [['Празници', 'praznici/'], [h.title, `praznik/${h.id}/`]] });
 });
-add({ path: 'vakancii/', script: 'vakancii', type: 'vac', title: `Ученически ваканции 2026/2027 – график по класове | ${SITE}`, desc: 'График на ученическите ваканции и неучебните дни през учебната година 2026/2027: Коледна, междусрочна и пролетна ваканция по класове.', pri: 0.85, crumbs: [['Ваканции', 'vakancii/']] });
+add({ path: 'vakancii/', script: 'vakancii', type: 'vac', title: `Ученически ваканции 2026/2027 – график по класове | ${SITE}`, desc: 'Официален график на МОН за 2026/2027: есенна, коледна, междусрочна и пролетна ваканция, неучебни дни и край на учебната година по класове.', pri: 0.85, crumbs: [['Ваканции', 'vakancii/']] });
 const CATSHORT = { fun: 'забавни', colleagues: 'за колеги', family: 'за роднини', friends: 'за приятели', romantic: 'романтични', poem: 'в стихове', short: 'кратки' };
 add({ path: 'pozhelaniya/', script: 'wishes', type: 'wishes', title: `Пожелания и поздравления за всеки повод | ${SITE}`, desc: 'Готови пожелания за имен ден, рожден ден, Коледа, Нова година, 3 март и Великден. Забавни, за колеги, за роднини, в стихове и кратки за Viber.', pri: 0.85, crumbs: [['Пожелания', 'pozhelaniya/']] });
 Object.entries(RT.OCC_SLUG).forEach(([occ, s]) => {
@@ -85,6 +85,8 @@ const bundle = LIBS.map((f) => `/* ${f}.js */\n` + read(`js/${f}.js`)).join('\n'
 fs.writeFileSync(path.join(ROOT, 'js/bundle.js'), bundle);
 const ver = crypto.createHash('md5').update(bundle + read('css/style.css') + pages.map((p) => read(`js/${p.script}.js`)).join('')).digest('hex').slice(0, 8);
 const abs = (p) => ORIGIN + '/' + p;
+const ISO = today.toISOString().slice(0, 10);
+const UPDATED = `${today.getDate()} ${BG.MONTHS_GEN[today.getMonth()]} ${today.getFullYear()}`;
 const rootOf = (p) => '../'.repeat(p.split('/').filter(Boolean).length);
 
 function shell(p, prerender) {
@@ -93,7 +95,9 @@ function shell(p, prerender) {
   if (p.type === 'home') ld.push({ '@context': 'https://schema.org', '@type': 'WebSite', name: SITE, url: abs(''), inLanguage: 'bg', potentialAction: { '@type': 'SearchAction', target: abs('imeni-dni/') + '?q={search_term_string}', 'query-input': 'required name=search_term_string' } });
   else ld.push({ '@context': 'https://schema.org', '@type': 'BreadcrumbList', itemListElement: [{ '@type': 'ListItem', position: 1, name: 'Начало', item: abs('') }].concat((p.crumbs || []).map(([n, pp], i) => ({ '@type': 'ListItem', position: i + 2, name: n, item: abs(pp) }))) });
   const root = rootOf(p.path);
-  const page = Object.assign({ type: p.type, root }, p.page || {});
+  ld.push({ '@context': 'https://schema.org', '@type': 'WebPage', name: p.title, description: p.desc, url, inLanguage: 'bg', dateModified: ISO, isPartOf: { '@type': 'WebSite', name: SITE, url: abs('') } });
+  if (p.type === 'home') ld.push({ '@context': 'https://schema.org', '@type': 'Organization', name: SITE, url: abs(''), logo: abs('favicon.svg') });
+  const page = Object.assign({ type: p.type, root, updated: UPDATED }, p.page || {});
   return `<!doctype html>
 <html lang="bg">
 <head>
@@ -149,12 +153,14 @@ const MIME = { '.js': 'text/javascript', '.css': 'text/css', '.svg': 'image/svg+
   for (const p of pages) {
     await p0.goto(`http://127.0.0.1:${port}${BASE}${p.path}`, { waitUntil: 'load' });
     await p0.waitForSelector('#main h1', { timeout: 10000 });
+    const faq = await p0.evaluate(() => Array.from(document.querySelectorAll('.faq > div')).map((d) => [d.querySelector('h3').textContent.trim(), d.querySelector('p').textContent.trim()]));
     let out = await p0.evaluate(() => {
       document.querySelectorAll('.toast, #bats').forEach((e) => e.remove());
       document.documentElement.removeAttribute('data-mode'); document.documentElement.removeAttribute('data-skin');
       return '<!doctype html>\n' + document.documentElement.outerHTML;
     });
     out = out.replace(/<html([^>]*?)\sdata-(?:mode|skin)="[^"]*"/g, '<html$1');
+    if (faq.length) out = out.replace('</head>', `<script type="application/ld+json">${JSON.stringify({ '@context': 'https://schema.org', '@type': 'FAQPage', mainEntity: faq.map(([q, a]) => ({ '@type': 'Question', name: q, acceptedAnswer: { '@type': 'Answer', text: a } })) })}</script>\n</head>`);
     const dir = path.join(OUT, p.path); fs.mkdirSync(dir, { recursive: true });
     fs.writeFileSync(path.join(dir, 'index.html'), out);
   }
@@ -169,7 +175,14 @@ const MIME = { '.js': 'text/javascript', '.css': 'text/css', '.svg': 'image/svg+
   // sitemap, robots, 404
   const d = today.toISOString().slice(0, 10);
   fs.writeFileSync(path.join(OUT, 'sitemap.xml'), `<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n${pages.map((p) => `  <url><loc>${abs(p.path)}</loc><lastmod>${d}</lastmod><priority>${p.pri.toFixed(2)}</priority></url>`).join('\n')}\n</urlset>\n`);
-  fs.writeFileSync(path.join(OUT, 'robots.txt'), NOINDEX ? 'User-agent: *\nDisallow: /\n' : `User-agent: *\nAllow: /\n\nSitemap: ${abs('sitemap.xml')}\n`);
+  const AIBOTS = ['OAI-SearchBot', 'ChatGPT-User', 'GPTBot', 'PerplexityBot', 'Perplexity-User', 'ClaudeBot', 'Claude-User', 'Claude-SearchBot', 'Google-Extended', 'Applebot-Extended'];
+  fs.writeFileSync(path.join(OUT, 'robots.txt'), NOINDEX ? 'User-agent: *\nDisallow: /\n' : `User-agent: *\nAllow: /\n\n# Търсачки и асистенти с изкуствен интелект – разрешени\n${AIBOTS.map((x) => `User-agent: ${x}\nAllow: /\n`).join('\n')}\nSitemap: ${abs('sitemap.xml')}\n`);
+  if (!NOINDEX) {
+    const sec = (title, filter) => `## ${title}\n` + pages.filter(filter).map((p) => `- [${p.title.replace(` | ${SITE}`, '')}](${abs(p.path)}): ${p.desc}`).join('\n') + '\n';
+    fs.writeFileSync(path.join(OUT, 'llms.txt'), `# ${SITE}\n\n> Български справочник за официални празници и почивни дни, църковен календар, имени дни, ученически ваканции и пожелания. Данните са по Кодекса на труда, решенията на Министерския съвет и графика на МОН; обновяваме ги редовно (последна промяна: ${ISO}).\n\n` +
+      sec('Почивни дни и мостове', (p) => p.type === 'days') + '\n' + sec('Ученически ваканции', (p) => p.type === 'vac') + '\n' + sec('Празници', (p) => p.type === 'praznici' || p.type === 'church' || p.type === 'holiday') + '\n' +
+      sec('Имени дни', (p) => p.type === 'names' || p.type === 'group') + '\n' + sec('Пожелания', (p) => p.type === 'wishes' || p.type === 'wish-occ') + '\n' + sec('За сайта', (p) => p.type === 'info'));
+  }
   fs.writeFileSync(path.join(OUT, '404.html'), `<!doctype html><html lang="bg"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>Страницата не е намерена | ${SITE}</title><meta name="robots" content="noindex"><style>body{margin:0;font:16px/1.6 system-ui,sans-serif;background:#f6f2fd;color:#1f1236}main{max-width:560px;margin:0 auto;padding:72px 16px}a{display:inline-block;background:#6d28d9;color:#fff;padding:12px 20px;border-radius:12px;text-decoration:none;font-weight:700}</style></head><body><main><h1>Страницата не е намерена</h1><p>Адресът не съществува или е преместен.</p><p><a href="${ORIGIN}/">Към началото</a></p></main></body></html>`);
   if (ADS_ID) fs.writeFileSync(path.join(OUT, 'ads.txt'), `google.com, pub-${ADS_ID.slice(7)}, DIRECT, f08c47fec0942fa0\n`);
   fs.writeFileSync(path.join(OUT, '.nojekyll'), '');

@@ -30,7 +30,7 @@
     title: `Почивни дни ${y}`,
     year: y, cal: 'full',
     main: `<div class="crumbs"><a href="${RT.R.home()}">Начало</a> / Почивни дни ${y}</div>
-    <header class="hero"><h1>Почивни дни ${y} – официални празници, мостове и дълги почивки</h1><p class="muted" style="max-width:62ch">Официалните почивни дни в България през ${y} г., дългите почивки и най-изгодните мостове. Великден е на ${BG.fmt(data.easter)}.</p><div class="chips">${tabs}</div></header>
+    <header class="hero"><h1>Почивни дни ${y} – официални празници, мостове и дълги почивки</h1><p class="answer">През ${y} г. има <b>${workOff.length} официални почивни дни</b> в работна седмица. Най-дългата почивка без отпуск е <b>${lLen} дни</b>${longest ? ` (${BG.fmt(longest.s)} – ${BG.fmt(longest.e)})` : ''}. Великден е на <b>${BG.fmt(data.easter)}</b>.</p><p class="muted" style="max-width:62ch">Официалните почивни дни в България през ${y} г., дългите почивки и най-изгодните мостове. Великден е на ${BG.fmt(data.easter)}.</p><div class="chips">${tabs}</div></header>
     <div class="stats"><div class="stat"><b class="num">${workOff.length}</b><span>почивни дни в седмицата</span></div><div class="stat"><b class="num">${longs.length}</b><span>дълги почивки (3+ дни)</span></div><div class="stat"><b class="num">${Math.max(...breaks.map((b) => Math.round((b.e - b.s) / 864e5) + 1))}</b><span>най-дълга почивка, дни</span></div></div>
     ${UI.adBlock('ad-inline', 'Реклама · между блоковете')}
     <section><h2 style="margin-bottom:12px">Всички почивни дни</h2><div class="tbl-wrap"><table class="tbl stack"><thead><tr><th>Дата</th><th>Ден</th><th>Празник</th></tr></thead><tbody>

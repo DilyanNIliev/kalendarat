@@ -160,17 +160,30 @@
     return cur;
   }
 
-  // Учебна година 2026/2027
+  // Учебна година 2026/2027 – по графика на МОН (заповед на министъра на образованието и науката)
   const VAC = [
-    { name: 'Есенна ваканция (Ден на народните будители)', from: mk(2026, 10, 31), to: mk(2026, 11, 2), grades: 'I–XII', kind: 'vac' },
-    { name: 'Коледна ваканция', from: mk(2026, 12, 24), to: mk(2027, 1, 3), grades: 'I–XII', kind: 'vac' },
-    { name: 'Междусрочна ваканция', from: mk(2027, 1, 30), to: mk(2027, 2, 2), grades: 'I–XII', kind: 'vac' },
+    { name: 'Есенна ваканция', from: mk(2026, 10, 31), to: mk(2026, 11, 2), grades: 'I–XII клас', kind: 'vac' },
+    { name: 'Коледна ваканция', from: mk(2026, 12, 24), to: mk(2027, 1, 3), grades: 'I–XII клас', kind: 'vac' },
+    { name: 'Междусрочна ваканция', from: mk(2027, 1, 30), to: mk(2027, 2, 2), grades: 'I–XII клас', kind: 'vac' },
     { name: 'Пролетна ваканция', from: mk(2027, 4, 3), to: mk(2027, 4, 11), grades: 'I–XI клас', kind: 'vac' },
     { name: 'Пролетна ваканция', from: mk(2027, 4, 8), to: mk(2027, 4, 11), grades: 'XII клас', kind: 'vac' },
-    { name: 'Неучебни дни (сливане на празници)', from: mk(2027, 5, 5), to: mk(2027, 5, 7), grades: 'I–XII', kind: 'noschool' },
-    { name: 'Неучебни дни заради матури и НВО', from: mk(2027, 5, 19), to: mk(2027, 5, 21), grades: 'I–XI клас (не за XII клас)', kind: 'noschool' },
-    { name: 'Неучебен ден', from: mk(2027, 5, 25), to: mk(2027, 5, 25), grades: 'I–XII', kind: 'noschool' },
-    { name: 'Неучебни дни заради НВО (VII и X клас)', from: mk(2027, 6, 18), to: mk(2027, 6, 21), grades: 'I–XII', kind: 'noschool', note: '18 и 21 юни' },
+    { name: 'Неучебен ден (сливане на празниците)', from: mk(2027, 5, 5), to: mk(2027, 5, 5), grades: 'I–XI клас', kind: 'noschool' },
+    { name: 'Неучебен ден (сливане на празниците)', from: mk(2027, 5, 7), to: mk(2027, 5, 7), grades: 'I–XI клас', kind: 'noschool' },
+    { name: 'Неучебен ден – ДЗИ по български език и литература', from: mk(2027, 5, 19), to: mk(2027, 5, 19), grades: 'I–XI клас', kind: 'noschool' },
+    { name: 'Неучебен ден – втори задължителен ДЗИ', from: mk(2027, 5, 21), to: mk(2027, 5, 21), grades: 'I–XI клас', kind: 'noschool' },
+    { name: 'Неучебен ден', from: mk(2027, 5, 25), to: mk(2027, 5, 25), grades: 'I–XI клас', kind: 'noschool' },
+    { name: 'Неучебен ден – НВО по български език и литература (VII и X клас)', from: mk(2027, 6, 18), to: mk(2027, 6, 18), grades: 'VII–XI клас', kind: 'noschool' },
+    { name: 'Неучебен ден – НВО по математика (VII и X клас)', from: mk(2027, 6, 21), to: mk(2027, 6, 21), grades: 'VII–XI клас', kind: 'noschool' },
+  ];
+  // Начало и край на учебните срокове по класове
+  const TERMS = [
+    { date: mk(2026, 9, 15), title: 'Начало на учебната година', grades: 'I–XII клас' },
+    { date: mk(2027, 2, 3), title: 'Начало на втория учебен срок', grades: 'I–XII клас' },
+    { date: mk(2027, 5, 13), title: 'Край на втория учебен срок', grades: 'XII клас' },
+    { date: mk(2027, 6, 2), title: 'Край на втория учебен срок', grades: 'I–III клас' },
+    { date: mk(2027, 6, 16), title: 'Край на втория учебен срок', grades: 'IV–VI клас' },
+    { date: mk(2027, 7, 2), title: 'Край на втория учебен срок', grades: 'V–VI клас (паралелки в спортни училища)' },
+    { date: mk(2027, 7, 2), title: 'Край на втория учебен срок', grades: 'VII–XI клас' },
   ];
 
   // Пожелания: повод → категория → текстове. {name} се заменя с името.
@@ -436,5 +449,5 @@
   };
   const GENERIC_CUSTOM = 'Именикът черпи семейство и приятели, а гостите се поздравяват с „Честит имен ден!“ и „На много години!“. Традиционно се дава подарък или цвете.';
 
-  window.CT = { CATS, wishList, HOLIDAYS, holById, holByTitle, events, between, nextBreak, VAC, WISHES, WISH_TITLES, MEANINGS, CUSTOMS_BY_TITLE, GENERIC_CUSTOM };
+  window.CT = { TERMS, CATS, wishList, HOLIDAYS, holById, holByTitle, events, between, nextBreak, VAC, WISHES, WISH_TITLES, MEANINGS, CUSTOMS_BY_TITLE, GENERIC_CUSTOM };
 })();

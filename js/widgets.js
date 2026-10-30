@@ -44,7 +44,6 @@
     const byKey = {};
     evs.forEach((e) => (byKey[BG.key(e.date)] = byKey[BG.key(e.date)] || []).push(e));
     const vacKeys = {};
-    Object.assign(vacKeys, BG.year(y).school);
     CT.VAC.forEach((v) => { for (let d = v.from; d <= v.to; d = BG.addDays(d, 1)) vacKeys[BG.key(d)] = v.name; });
     const first = new Date(y, m, 1), lead = (first.getDay() + 6) % 7, n = new Date(y, m + 1, 0).getDate();
     const ideaKeys = new Set(BG.year(y).ideas.flatMap((i) => i.leave.map(BG.key)));
