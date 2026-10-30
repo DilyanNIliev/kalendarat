@@ -139,7 +139,7 @@
         <div class="cols">
           <div><h4>kalendarat</h4><p style="opacity:.9;max-width:34ch">Официални празници, почивни дни, имени дни и ученически ваканции в България.</p></div>
           <div><h4>Разгледай</h4><a href="${R.days()}">Почивни дни</a><a href="${R.holidays()}">Празници</a><a href="${R.names()}">Имени дни</a><a href="${R.church()}">Църковен календар</a><a href="${R.vac()}">Ваканции</a><a href="${R.wishes()}">Пожелания</a><a href="${R.season()}">Отброяване до празниците</a></div>
-          <div><h4>Информация</h4>${Object.entries(RT.INFO).map(([k, t]) => `<a href="${R.info(k)}">${t}</a>`).join('')}</div>
+          <div><h4>Информация</h4>${Object.entries(RT.INFO).map(([k, t]) => `<a href="${R.info(k)}">${t}</a>`).join('')}<a href="${R.info('biskvitki')}" id="cookie-settings">Настройки за бисквитки</a></div>
         </div>
         <p class="copy">© ${new Date().getFullYear()} kalendarat. Данните са информативни, проверявайте в официалните източници.</p>
       </div></footer>
@@ -149,6 +149,8 @@
     document.getElementById('theme').onclick = toggleSkin;
     document.getElementById('mode').onclick = toggleMode;
     applyMode(); updateSkinBtn(); applyDecor();
+    const cs = document.getElementById('cookie-settings');
+    if (cs) cs.addEventListener('click', (e) => { try { if (window.googlefc && typeof googlefc.showRevocationMessage === 'function') { e.preventDefault(); googlefc.showRevocationMessage(); } } catch (_) {} });
     const nav = document.getElementById('nav'), bg = document.getElementById('burger');
     bg.onclick = () => { const o = nav.classList.toggle('open'); bg.setAttribute('aria-expanded', o); bg.innerHTML = o ? ICON.close : ICON.menu; };
     document.getElementById('hsearch').onsubmit = (e) => { e.preventDefault(); runSearch(document.getElementById('hq').value); };

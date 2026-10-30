@@ -4,6 +4,7 @@
 //   OUT=dist            папка за резултата (по подразбиране dist)
 //   ORIGIN=https://kalendarat.com   домейнът за каноничните връзки и sitemap
 //   NOINDEX=1           за тестово копие (GitHub Pages): забранява индексирането
+//   ADSENSE_ID=ca-pub-1234567890123456   добавя кода на Google AdSense и ads.txt (само за истинския сайт)
 // Връзките и файловете са относителни, затова една и съща изградена папка работи на домейн и в подпапка.
 // Изисква Playwright (npm i -D playwright && npx playwright install chromium).
 const fs = require('fs');
@@ -16,6 +17,8 @@ const ROOT = path.resolve(__dirname, '..');
 const ORIGIN = (process.env.ORIGIN || 'https://kalendarat.com').replace(/\/$/, '');
 const NOINDEX = !!process.env.NOINDEX;
 const BASE = '/'; // само за вътрешния сървър при изграждането
+const ADS_ID = NOINDEX ? '' : (process.env.ADSENSE_ID || '').trim();
+if (ADS_ID && !/^ca-pub-\d{16}$/.test(ADS_ID)) throw new Error('ADSENSE_ID трябва да е във вида ca-pub-1234567890123456');
 const SITE = 'kalendarat';
 const OUT = path.resolve(ROOT, process.env.OUT || 'dist'); // къде да се запишат готовите страници
 
@@ -62,7 +65,15 @@ Object.entries(RT.OCC_SLUG).forEach(([occ, s]) => {
   add({ path: `pozhelaniya/${s}/`, script: 'wishes', type: 'wish-occ', page: { occ }, title: `Пожелания за ${t.toLowerCase()} – ${cats.slice(0, 3).join(', ')} | ${SITE}`, desc: `${CT.wishList(occ, 'all').length} готови пожелания за ${t.toLowerCase()}: ${cats.join(', ')}. Копирайте и изпратете през Viber или Facebook.`, pri: 0.75, crumbs: [['Пожелания', 'pozhelaniya/'], [t, `pozhelaniya/${s}/`]] });
 });
 add({ path: 'otbroyavane/', script: 'sezoni', type: 'season', title: `Отброяване до празниците – Коледа, Нова година, Великден | ${SITE}`, desc: 'Колко дни остават до Хелоуин, Коледа, Нова година, Баба Марта, Великден и Гергьовден.', pri: 0.5, crumbs: [['Отброяване', 'otbroyavane/']] });
-Object.entries(RT.INFO).forEach(([k, t]) => add({ path: `${k}/`, script: 'info', type: 'info', page: { key: k }, title: `${t} | ${SITE}`, desc: `${t} – ${SITE}, календар на празниците и почивните дни в България.`, pri: 0.2, crumbs: [[t, `${k}/`]] }));
+const INFO_DESC = {
+  'za-nas': 'Кои сме и какво предлага kalendarat: почивни дни, празници, имени дни, ваканции и пожелания за България.',
+  kontakt: 'Свържете се с kalendarat – за поправки в датите, предложения, лични данни и партньорства.',
+  'politika-za-poveritelnost': 'Как kalendarat обработва данни, какви бисквитки и реклами (Google AdSense) използва и какви са правата ви по GDPR.',
+  biskvitki: 'Какви бисквитки използва kalendarat, как да управлявате съгласието си и как да ги изтриете или блокирате.',
+  'uslovia-za-polzvane': 'Условия за ползване на kalendarat: справочен характер на информацията, отговорност и авторски права.',
+  metodologiya: 'Откъде са данните на kalendarat и как изчисляваме празниците, Великден, равноденствията, смяната на часа и мостовете.',
+};
+Object.entries(RT.INFO).forEach(([k, t]) => add({ path: `${k}/`, script: 'info', type: 'info', page: { key: k }, title: `${t} | ${SITE}`, desc: INFO_DESC[k], pri: 0.3, crumbs: [[t, `${k}/`]] }));
 
 pages.forEach((p) => { if (p.title.length > 66) p.title = p.title.replace(` | ${SITE}`, ''); });
 
@@ -97,7 +108,9 @@ function shell(p, prerender) {
 <meta property="og:title" content="${esc(p.title)}"><meta property="og:description" content="${esc(p.desc)}"><meta property="og:url" content="${url}">
 <meta property="og:image" content="${abs('og.png')}"><meta property="og:image:width" content="1200"><meta property="og:image:height" content="630">
 <meta name="twitter:card" content="summary_large_image"><meta name="twitter:title" content="${esc(p.title)}"><meta name="twitter:description" content="${esc(p.desc)}"><meta name="twitter:image" content="${abs('og.png')}">
-<link rel="icon" href="${root}favicon.svg" type="image/svg+xml">
+<link rel="icon" href="${root}favicon.svg" type="image/svg+xml">${ADS_ID ? `
+<meta name="google-adsense-account" content="${ADS_ID}">
+<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=${ADS_ID}" crossorigin="anonymous"></script>` : ''}
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;600;700;800&display=swap">
 <link rel="stylesheet" href="${root}css/style.css?v=${ver}">
@@ -158,7 +171,8 @@ const MIME = { '.js': 'text/javascript', '.css': 'text/css', '.svg': 'image/svg+
   fs.writeFileSync(path.join(OUT, 'sitemap.xml'), `<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n${pages.map((p) => `  <url><loc>${abs(p.path)}</loc><lastmod>${d}</lastmod><priority>${p.pri.toFixed(2)}</priority></url>`).join('\n')}\n</urlset>\n`);
   fs.writeFileSync(path.join(OUT, 'robots.txt'), NOINDEX ? 'User-agent: *\nDisallow: /\n' : `User-agent: *\nAllow: /\n\nSitemap: ${abs('sitemap.xml')}\n`);
   fs.writeFileSync(path.join(OUT, '404.html'), `<!doctype html><html lang="bg"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>Страницата не е намерена | ${SITE}</title><meta name="robots" content="noindex"><style>body{margin:0;font:16px/1.6 system-ui,sans-serif;background:#f6f2fd;color:#1f1236}main{max-width:560px;margin:0 auto;padding:72px 16px}a{display:inline-block;background:#6d28d9;color:#fff;padding:12px 20px;border-radius:12px;text-decoration:none;font-weight:700}</style></head><body><main><h1>Страницата не е намерена</h1><p>Адресът не съществува или е преместен.</p><p><a href="${ORIGIN}/">Към началото</a></p></main></body></html>`);
+  if (ADS_ID) fs.writeFileSync(path.join(OUT, 'ads.txt'), `google.com, pub-${ADS_ID.slice(7)}, DIRECT, f08c47fec0942fa0\n`);
   fs.writeFileSync(path.join(OUT, '.nojekyll'), '');
   if (OUT !== ROOT) { ['css', 'js'].forEach((d) => fs.cpSync(path.join(ROOT, d), path.join(OUT, d), { recursive: true })); }
-  console.log(`Готово: ${pages.length} страници, версия ${ver}, адрес ${ORIGIN}${BASE}`);
+  console.log(`Готово: ${pages.length} страници, версия ${ver}, адрес ${ORIGIN}${BASE}${ADS_ID ? ', AdSense ' + ADS_ID : ''}`);
 })();

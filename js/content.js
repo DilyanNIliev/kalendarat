@@ -162,7 +162,7 @@
 
   // Учебна година 2026/2027
   const VAC = [
-    { name: 'Неучебни дни – Ден на народните будители', from: mk(2026, 10, 31), to: mk(2026, 11, 2), grades: 'I–XII', kind: 'noschool' },
+    { name: 'Есенна ваканция (Ден на народните будители)', from: mk(2026, 10, 31), to: mk(2026, 11, 2), grades: 'I–XII', kind: 'vac' },
     { name: 'Коледна ваканция', from: mk(2026, 12, 24), to: mk(2027, 1, 3), grades: 'I–XII', kind: 'vac' },
     { name: 'Междусрочна ваканция', from: mk(2027, 1, 30), to: mk(2027, 2, 2), grades: 'I–XII', kind: 'vac' },
     { name: 'Пролетна ваканция', from: mk(2027, 4, 3), to: mk(2027, 4, 11), grades: 'I–XI клас', kind: 'vac' },

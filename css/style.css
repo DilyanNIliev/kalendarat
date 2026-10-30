@@ -355,3 +355,5 @@ table.tbl { width: 100%; border-collapse: collapse; font-size: .95rem; }
 .faq { display: grid; gap: 14px; max-width: 70ch; }
 .faq h3 { font-size: 1.05rem; margin-bottom: 4px; }
 .wish .tag { justify-self: start; }
+.prose h2 { font-size: 1.25rem; margin-top: 8px; }
+.prose a { word-break: break-word; }

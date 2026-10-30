@@ -24,7 +24,9 @@ jobs:
           node-version: 20
       - run: npm install
       - run: npx playwright install --with-deps chromium
-      - name: Изграждане за хостинга (канонични адреси към kalendarat.com)
+      - name: Изграждане за хостинга (канонични адреси към kalendarat.com; AdSense, ако е зададен)
+        env:
+          ADSENSE_ID: ${{ vars.ADSENSE_ID }}
         run: OUT=dist node tools/build.cjs
       - name: Изграждане на копие за GitHub Pages (без индексиране)
         run: NOINDEX=1 OUT=dist-pages node tools/build.cjs

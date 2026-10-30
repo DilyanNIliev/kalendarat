@@ -18,7 +18,7 @@
   const groupDate = (g, y) => (g.movable ? BG.addDays(BG.easter(y), g.off) : new Date(y, g.month - 1, g.day));
 
   const OCC_SLUG = { imenden: 'imen-den', rozhden: 'rozhden-den', koleda: 'koleda', novagodina: 'nova-godina', mart3: '3-mart', velikden: 'velikden', martenica: 'baba-marta', nacionalen: 'natsionalni-praznitsi' };
-  const INFO = { 'za-nas': 'За нас', kontakt: 'Контакт', 'politika-za-poveritelnost': 'Политика за поверителност', biskvitki: 'Бисквитки' };
+  const INFO = { 'za-nas': 'За нас', kontakt: 'Контакт', 'politika-za-poveritelnost': 'Политика за поверителност', biskvitki: 'Бисквитки', 'uslovia-za-polzvane': 'Условия за ползване', metodologiya: 'Методология и източници' };
   const DEFAULT_YEAR = 2027;
 
   // относителен път до корена на сайта (подава се от страницата), за да работи и в подпапка, и на домейн

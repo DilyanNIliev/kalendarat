@@ -20,6 +20,13 @@
 - Secrets: `FTP_SERVER` (напр. `ftp.вашият-хостинг.bg`), `FTP_USERNAME`, `FTP_PASSWORD`.
 - Variables: `DEPLOY_HOSTING` = `true`; по желание `FTP_DIR` (по подразбиране `/public_html/`) и `FTP_PROTOCOL` (`ftp`, `ftps` или `ftps-legacy`).
 
+## Google AdSense
+1. Купете домейна и пуснете сайта на него (HTTPS е задължителен).
+2. В AdSense добавете сайта kalendarat.com и копирайте номера на издателя (`ca-pub-…`).
+3. В GitHub: Settings → Secrets and variables → Actions → Variables → `ADSENSE_ID` = `ca-pub-1234567890123456`. При следващото изграждане сайтът получава кода на AdSense (`<script>` и `meta google-adsense-account`) и файл `ads.txt`.
+4. В AdSense: Privacy & messaging → създайте съобщение за съгласие (Google CMP) за ЕИП/Великобритания и го публикувайте.
+5. Рекламните места на сайта са изключени (`ADS = false` в `js/common.js`). След одобрение включете автоматични реклами от AdSense или върнете `ADS = true` и задайте рекламни блокове.
+
 ## Изграждане на компютър
 ```bash
 npm install && npx playwright install chromium
