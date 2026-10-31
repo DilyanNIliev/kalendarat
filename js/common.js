@@ -38,8 +38,9 @@
   // Тема (лилава / коледна) и фон (светъл / тъмен). Автоматичният фон следва часа в България:
   // тъмен от 19:00 до 07:00, светъл през деня.
   const root = document.documentElement;
-  const SKINS = ['auto', 'purple', 'halloween', 'christmas'];
-  const SKIN_NAMES = { auto: 'Автоматична (по празника)', purple: 'Лилава', halloween: 'Хелоуин', christmas: 'Коледна' };
+  const SKINS = ['auto', 'purple', 'christmas'];
+  const SKIN_BUTTON = false; // бутонът за смяна на темата е скрит; включете го за тест на сезонни теми
+  const SKIN_NAMES = { auto: 'Основна', purple: 'Лилава', christmas: 'Коледна' };
   const MODE_NAMES = { auto: 'Автоматичен (по часа в България)', light: 'Светъл', dark: 'Тъмен' };
   const read = (k, dflt) => { try { return localStorage.getItem(k) || dflt; } catch (_) { return dflt; } };
   const write = (k, v) => { try { localStorage.setItem(k, v); } catch (_) {} };
@@ -48,13 +49,8 @@
   };
   const autoMode = () => { const h = sofiaHour(); return h >= 19 || h < 7 ? 'dark' : 'light'; };
   const seasonId = () => { try { return Season.pick(new Date(), location.hash.slice(1)).d.id; } catch (_) { return ''; } };
-  function skinFor(pref) { if (pref !== 'auto') return pref; const id = seasonId(); return id === 'christmas' || id === 'newyear' ? 'christmas' : id === 'halloween' ? 'halloween' : 'purple'; }
-  const BAT = '<svg viewBox="0 0 64 28" aria-hidden="true"><path d="M32 8c-3-5-9-7-14-4-5 3-10 1-16 6 6 0 8 2 10 5 2-3 6-3 8 1 2-3 5-3 7 3 1-4 3-4 5-4s4 0 5 4c2-6 5-6 7-3 2-4 6-4 8-1 2-3 4-5 10-5-6-5-11-3-16-6-5-3-11-1-14 4z" fill="currentColor"/></svg>';
-  // декорация на празника: прилепи по Хелоуин
-  function applyDecor() {
-    const old = document.getElementById('bats'); if (old) old.remove();
-    if (skinFor(read('skin', 'auto')) === 'halloween') document.body.insertAdjacentHTML('afterbegin', `<div class="bats" id="bats" aria-hidden="true">${[1, 2, 3, 4].map((i) => `<span class="b b${i}">${BAT}</span>`).join('')}</div>`);
-  }
+  // Основната (лилава) тема е по подразбиране. Сезонни теми (напр. коледна) се включват ръчно.
+  function skinFor(pref) { return SKINS.includes(pref) && pref !== 'auto' ? pref : 'purple'; }
   function applySkin(s) { if (s === 'purple') root.removeAttribute('data-skin'); else root.dataset.skin = s; }
   function applyMode() {
     const pref = read('mode', 'auto');
@@ -70,7 +66,7 @@
   function updateSkinBtn() { const b = document.getElementById('theme'); if (!b) return; const p = read('skin', 'auto'); const t = 'Тема: ' + SKIN_NAMES[p] + (p === 'auto' ? ' – сега ' + SKIN_NAMES[skinFor(p)].toLowerCase() : ''); b.title = t; b.setAttribute('aria-label', t + '. Натиснете за смяна.'); }
   function toggleSkin() {
     const next = SKINS[(SKINS.indexOf(read('skin', 'auto')) + 1) % SKINS.length];
-    write('skin', next); applySkin(skinFor(next)); applyDecor(); updateSkinBtn(); toast('Тема: ' + SKIN_NAMES[next]);
+    write('skin', next); applySkin(skinFor(next)); updateSkinBtn(); toast('Тема: ' + SKIN_NAMES[next]);
   }
   function toggleMode() {
     const order = ['auto', 'light', 'dark'];
@@ -133,7 +129,7 @@
         <form class="search" role="search" id="hsearch"><label class="sr" for="hq">Търсене на име или празник</label>
           <input id="hq" type="search" list="hlist" placeholder="Име или празник, напр. Георги" autocomplete="off"><button type="submit" aria-label="Търси">${ICON.search}<span>Търси</span></button>
           <datalist id="hlist">${searchIndex().map((n) => `<option value="${esc(n)}">`).join('')}</datalist></form>
-        <div class="tools"><button class="ibtn" id="theme" aria-label="Смени темата (лилава или коледна)" title="Смени темата">${ICON.palette}</button><button class="ibtn" id="mode" type="button"></button><button class="ibtn burger" id="burger" aria-label="Меню" aria-expanded="false">${ICON.menu}</button></div>
+        <div class="tools">${SKIN_BUTTON ? `<button class="ibtn" id="theme" aria-label="Смени темата" title="Смени темата">${ICON.palette}</button>` : ''}<button class="ibtn" id="mode" type="button"></button><button class="ibtn burger" id="burger" aria-label="Меню" aria-expanded="false">${ICON.menu}</button></div>
         <nav class="nav" id="nav" aria-label="Основно меню">${navLinks}</nav>
       </div></header>
       ${ADS ? `<div class="wrap">${adBlock('ad-top', 'Реклама · банер 320×100 / 728×90')}</div>` : ''}
@@ -149,9 +145,9 @@
       ${ADS ? `<aside class="ad ad-sticky" id="sticky" aria-label="Реклама"><span class="ad-label">Лепкава реклама 320×50</span><button aria-label="Затвори рекламата" id="sx">${ICON.close}</button></aside>` : ''}`;
     keep.forEach((e) => document.body.appendChild(e));
     if (cal !== false && window.W) { document.getElementById('main').insertAdjacentHTML('beforeend', W.yearCalHtml(cal === 'full')); W.initYearCal(year, { compact: cal !== 'full', month }); }
-    document.getElementById('theme').onclick = toggleSkin;
+    const tb = document.getElementById('theme'); if (tb) tb.onclick = toggleSkin;
     document.getElementById('mode').onclick = toggleMode;
-    applyMode(); updateSkinBtn(); applyDecor();
+    applyMode(); updateSkinBtn();
     const cs = document.getElementById('cookie-settings');
     if (cs) cs.addEventListener('click', (e) => { try { if (window.googlefc && typeof googlefc.showRevocationMessage === 'function') { e.preventDefault(); googlefc.showRevocationMessage(); } } catch (_) {} });
     const nav = document.getElementById('nav'), bg = document.getElementById('burger');

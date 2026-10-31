@@ -23,9 +23,6 @@
   --ad: #ece8f6; --shadow: 0 1px 2px rgba(31,18,54,.06), 0 6px 20px rgba(31,18,54,.06);
   --footer-bg: #2a1458; --footer-ink: #ffffff; --glow: rgba(124,58,237,.14); --snow: #fff; color-scheme: light;
 }
-/* Хелоуин – леко лилав фон (тъмен и светъл) */
-:root[data-skin="halloween"] { --bg: #1b0d36; --surface: #271549; --line: #47296f; --glow: rgba(168,100,255,.38); }
-:root[data-skin="halloween"][data-mode="light"] { --bg: #e9ddfb; --surface: #fbf8ff; --line: #d3c1f1; --glow: rgba(124,58,237,.26); }
 /* Коледна – тъмен фон */
 :root[data-skin="christmas"] {
   --bg: #0a1f18; --surface: #12302a; --ink: #f6f1e7; --muted: #a9c7b8; --line: #27503f;
@@ -271,7 +268,6 @@ table.tbl { width: 100%; border-collapse: collapse; font-size: .95rem; }
 
 /* сезонно отброяване */
 .season { --s-bg: linear-gradient(135deg, #0f4c3a, #0b3a2d); --s-acc: #f4c542; position: relative; overflow: hidden; border-radius: 20px; padding: 20px; color: #fff; display: grid; gap: 14px; background: var(--s-bg); isolation: isolate; }
-.season.halloween { --s-bg: linear-gradient(135deg, #2b1048 0%, #4a1d6e 60%, #7a2a14 130%); --s-acc: #9dff6a; }
 .season.christmas { --s-bg: linear-gradient(135deg, #8c1d1d 0%, #5f1414 45%, #0f4c3a 130%); --s-acc: #f4c542; }
 .season.newyear { --s-bg: linear-gradient(135deg, #14234f, #0a1230); --s-acc: #f4c542; }
 .season.babamarta { --s-bg: linear-gradient(135deg, #b32b35, #7d1c27); --s-acc: #fff; }
@@ -294,7 +290,6 @@ table.tbl { width: 100%; border-collapse: collapse; font-size: .95rem; }
   background-image: radial-gradient(2px 2px at 20px 30px, var(--snow), transparent), radial-gradient(2px 2px at 90px 80px, var(--snow), transparent), radial-gradient(1.5px 1.5px at 150px 20px, var(--snow), transparent), radial-gradient(2px 2px at 60px 140px, var(--snow), transparent), radial-gradient(1.5px 1.5px at 190px 110px, var(--snow), transparent);
   background-size: 220px 170px; animation: snow 14s linear infinite; }
 @keyframes snow { to { background-position: -40px 170px; } }
-.season.halloween::before { content: ""; position: absolute; inset: 0; z-index: -1; background: radial-gradient(240px 140px at 90% 0%, rgba(255,138,31,.28), transparent 70%); }
 @media (min-width: 720px) { .season { padding: 26px; grid-template-columns: 1fr auto; align-items: center; } .season .art { width: 84px; height: 84px; } .season .units, .season .s-sub, .season .actions { grid-column: 1; } .season .s-top { grid-column: 1; } }
 @media (prefers-reduced-motion: reduce) { .season::before { animation: none; } }
 .season-list { display: grid; gap: 14px; }
@@ -325,15 +320,6 @@ table.tbl { width: 100%; border-collapse: collapse; font-size: .95rem; }
 
 .kd { width: 9px; height: 9px; border-radius: 50%; display: inline-block; }
 .kd.church { background: var(--gold); } .kd.name { background: var(--blue); }
-/* прилепи (Хелоуин) */
-.bats { position: fixed; inset: 0; pointer-events: none; overflow: hidden; z-index: -1; color: var(--ink); opacity: .22; }
-.bats .b { position: absolute; width: 46px; left: -60px; animation: fly linear infinite; }
-.bats .b1 { top: 14%; animation-duration: 24s; } .bats .b2 { top: 34%; animation-duration: 32s; animation-delay: -9s; width: 34px; }
-.bats .b3 { top: 58%; animation-duration: 28s; animation-delay: -15s; } .bats .b4 { top: 78%; animation-duration: 36s; animation-delay: -4s; width: 30px; }
-.bats svg { width: 100%; display: block; animation: flap .35s ease-in-out infinite alternate; }
-@keyframes fly { 0% { transform: translate(0, 0); } 50% { transform: translate(55vw, -40px); } 100% { transform: translate(115vw, 20px); } }
-@keyframes flap { from { transform: scaleY(1); } to { transform: scaleY(.55); } }
-@media (prefers-reduced-motion: reduce) { .bats { display: none; } }
 
 .tag.clock, .tag.equinox { background: var(--primary-soft); color: var(--ink); }
 .dt.clock, .dt.equinox { background: var(--primary-soft); color: var(--ink); }

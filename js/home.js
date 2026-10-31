@@ -32,7 +32,7 @@
           <span class="share-row">${UI.shareLinks(shareText)}</span></div>
       </div></section>`;
 
-  // Сезонно отброяване (авто или чрез #christmas, #halloween ...)
+  // Сезонно отброяване (авто или чрез #christmas ...)
   const seasonItem = Season.pick(now, location.hash.slice(1));
   const seasonHtml = Season.card(seasonItem);
 
