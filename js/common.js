@@ -22,14 +22,15 @@
   };
   const LOGO = `<svg viewBox="0 0 40 40" aria-hidden="true"><rect width="40" height="40" rx="11" fill="var(--primary)"/><rect x="8" y="10" width="24" height="22" rx="4" fill="#fff"/><rect x="8" y="10" width="24" height="7" rx="3.500" fill="#c4352b"/><circle cx="14" cy="24" r="1.800" fill="var(--primary)"/><circle cx="20" cy="24" r="1.800" fill="var(--primary)"/><circle cx="26" cy="24" r="1.800" fill="#d9a441"/><circle cx="14" cy="29" r="1.800" fill="var(--primary)"/><circle cx="20" cy="29" r="1.800" fill="var(--primary)"/></svg>`;
 
-  const NAV = [['pochivni-dni.html', 'Почивни дни', 'days'], ['praznici.html', 'Празници', 'praznici'], ['imeni-dni.html', 'Имени дни', 'names'], ['praznici.html?type=church', 'Църковен календар', 'church'], ['vakancii.html', 'Ваканции', 'vac'], ['pozhelaniya.html', 'Пожелания', 'wishes']];
+  const R = RT.R;
+  const NAV = [[R.days(), 'Почивни дни', 'days'], [R.holidays(), 'Празници', 'praznici'], [R.names(), 'Имени дни', 'names'], [R.church(), 'Църковен календар', 'church'], [R.vac(), 'Ваканции', 'vac'], [R.wishes(), 'Пожелания', 'wishes']];
 
   const store = {
     get(k) { try { return sessionStorage.getItem(k); } catch (_) { return null; } },
     set(k, v) { try { sessionStorage.setItem(k, v); } catch (_) {} },
   };
-  const param = (k) => new URLSearchParams(location.search).get(k) || store.get('p_' + k) || '';
-  const go = (url, k, v) => { store.set('p_' + k, v); location.href = url + '?' + k + '=' + encodeURIComponent(v); };
+  // параметрите идват от самата страница (window.__PAGE), после от адреса
+  const param = (k) => { const pg = window.__PAGE || {}; return pg[k] !== undefined ? pg[k] : new URLSearchParams(location.search).get(k) || ''; };
   const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
   const plural = (n, one, many) => n + ' ' + (n === 1 ? one : many);
   const daysAway = (n) => (n === 0 ? 'днес' : n === 1 ? 'утре' : 'след ' + plural(n, 'ден', 'дни'));
@@ -93,35 +94,42 @@
   };
 
   // ресурси за подсказки при търсене
-  function searchIndex() { return [...new Set([...ND.allNames(), ...CT.HOLIDAYS.map((h) => h.title)])]; }
+  function searchIndex() { return [...new Set([...ND.allNames(), ...CT.HOLIDAYS.map((h) => h.title), ...RT.RECIP.map((x) => x.h1)])]; }
   function runSearch(q) {
     q = q.trim(); if (!q) return;
     const ql = q.toLowerCase();
-    const h = CT.HOLIDAYS.find((x) => x.title.toLowerCase() === ql) || CT.HOLIDAYS.find((x) => x.title.toLowerCase().includes(ql) && ql.length > 2);
-    if (ND.allNames().some((n) => n.toLowerCase() === ql) || !h) return go('imen-den.html', 'name', q);
-    go('praznik.html', 'id', h.id);
+    const rc = RT.recipByQuery(q);
+    if (rc) { location.href = R.wishRec(rc.slug); return; }
+    if (/рожден|юбилей/.test(ql)) { location.href = R.wishes('rozhden'); return; }
+    const h = CT.HOLIDAYS.find((x) => x.title.toLowerCase() === ql);
+    if (h) { location.href = R.holiday(h.id); return; }
+    if (RT.groupsFor(q).length) { location.href = RT.nameHref(q); return; }
+    const part = CT.HOLIDAYS.find((x) => ql.length > 2 && x.title.toLowerCase().includes(ql));
+    if (part) { location.href = R.holiday(part.id); return; }
+    location.href = R.names() + '?q=' + encodeURIComponent(q);
   }
 
   const ADS = false; // включете, когато добавите реклами
   const adBlock = (cls, label) => !ADS ? '' : `<aside class="ad ${cls}" aria-label="Реклама"><span class="ad-label">${label}</span></aside>`;
 
-  function mount(active, { title, main, aside, year, cal }) {
+  function mount(active, { title, main, aside, year, cal, month }) {
     initTheme();
-    if (title) document.title = title;
+    if (title && !window.__PAGE) document.title = title;
     const navLinks = NAV.map(([h, t, id]) => `<a href="${h}"${active === id ? ' aria-current="page"' : ''}>${t}</a>`).join('');
+    const yr = BG.easter(new Date().getFullYear()) < new Date() ? new Date().getFullYear() + 1 : new Date().getFullYear();
     const asideHtml = aside || `${adBlock('ad-side', 'Реклама 300×600')}
       <section class="panel popular"><h3 style="margin-bottom:8px">Най-търсено</h3>
-        <a href="praznik.html?id=velikden" data-p="id=velikden">Великден ${BG.year(new Date().getFullYear()).easter < new Date() ? new Date().getFullYear() + 1 : new Date().getFullYear()} ${ICON.arrow}</a>
-        <a href="pochivni-dni.html">Почивни дни 2027 ${ICON.arrow}</a>
-        <a href="vakancii.html">Ваканции 2026/2027 ${ICON.arrow}</a>
-        <a href="imen-den.html?name=Иван" data-p="name=Иван">Имен ден на Иван ${ICON.arrow}</a>
-        <a href="pozhelaniya.html">Пожелания ${ICON.arrow}</a></section>`;
+        <a href="${R.holiday('velikden')}">Великден ${yr} ${ICON.arrow}</a>
+        <a href="${R.days()}">Почивни дни ${RT.DEFAULT_YEAR} ${ICON.arrow}</a>
+        <a href="${R.vac()}">Ваканции 2026/2027 ${ICON.arrow}</a>
+        <a href="${R.group('ivanovden')}">Имен ден на Иван ${ICON.arrow}</a>
+        <a href="${R.wishes()}">Пожелания ${ICON.arrow}</a></section>`;
     if (ADS) document.body.classList.add('has-sticky');
     // запазва стиловете и метаданните, ако са вътре в body (напр. при вграждане)
     const keep = [...document.body.children].filter((e) => /^(STYLE|LINK|TITLE|META|SCRIPT)$/.test(e.tagName));
     document.body.innerHTML = `
       <header class="site-header"><div class="wrap hd">
-        <a class="brand" href="index.html">${LOGO}<span>kalendar<em>at</em></span></a>
+        <a class="brand" href="${R.home()}">${LOGO}<span>kalendar<em>at</em></span></a>
         <form class="search" role="search" id="hsearch"><label class="sr" for="hq">Търсене на име или празник</label>
           <input id="hq" type="search" list="hlist" placeholder="Име или празник, напр. Георги" autocomplete="off"><button type="submit" aria-label="Търси">${ICON.search}<span>Търси</span></button>
           <datalist id="hlist">${searchIndex().map((n) => `<option value="${esc(n)}">`).join('')}</datalist></form>
@@ -133,24 +141,23 @@
       <footer class="site-footer"><div class="wrap">
         <div class="cols">
           <div><h4>kalendarat</h4><p style="opacity:.9;max-width:34ch">Официални празници, почивни дни, имени дни и ученически ваканции в България.</p></div>
-          <div><h4>Разгледай</h4><a href="pochivni-dni.html">Почивни дни</a><a href="praznici.html">Празници</a><a href="imeni-dni.html">Имени дни</a><a href="vakancii.html">Ваканции</a><a href="sezoni.html">Отброяване до празниците</a></div>
-          <div><h4>Информация</h4><a href="info.html#za-nas">За нас</a><a href="info.html#kontakt">Контакт</a><a href="info.html#poveritelnost">Политика за поверителност</a><a href="info.html#biskvitki">Бисквитки</a></div>
+          <div><h4>Разгледай</h4><a href="${R.days()}">Почивни дни</a><a href="${R.holidays()}">Празници</a><a href="${R.names()}">Имени дни</a><a href="${R.church()}">Църковен календар</a><a href="${R.vac()}">Ваканции</a><a href="${R.wishes()}">Пожелания</a><a href="${R.season()}">Отброяване до празниците</a></div>
+          <div><h4>Информация</h4>${Object.entries(RT.INFO).map(([k, t]) => `<a href="${R.info(k)}">${t}</a>`).join('')}<a href="${R.info('biskvitki')}" id="cookie-settings">Настройки за бисквитки</a></div>
         </div>
-        <p class="copy">© ${new Date().getFullYear()} kalendarat. Данните са информативни, проверявайте в официалните източници.</p>
+        <p class="copy">© ${new Date().getFullYear()} kalendarat. Данните са информативни, проверявайте в официалните източници.${(window.__PAGE || {}).updated ? ` <span class="updated">Актуализирано: ${(window.__PAGE || {}).updated}</span>` : ''}</p>
       </div></footer>
       ${ADS ? `<aside class="ad ad-sticky" id="sticky" aria-label="Реклама"><span class="ad-label">Лепкава реклама 320×50</span><button aria-label="Затвори рекламата" id="sx">${ICON.close}</button></aside>` : ''}`;
     keep.forEach((e) => document.body.appendChild(e));
-    if (cal !== false && window.W) { document.getElementById('main').insertAdjacentHTML('beforeend', W.yearCalHtml()); W.initYearCal(year); }
+    if (cal !== false && window.W) { document.getElementById('main').insertAdjacentHTML('beforeend', W.yearCalHtml(cal === 'full')); W.initYearCal(year, { compact: cal !== 'full', month }); }
     document.getElementById('theme').onclick = toggleSkin;
     document.getElementById('mode').onclick = toggleMode;
     applyMode(); updateSkinBtn(); applyDecor();
+    const cs = document.getElementById('cookie-settings');
+    if (cs) cs.addEventListener('click', (e) => { try { if (window.googlefc && typeof googlefc.showRevocationMessage === 'function') { e.preventDefault(); googlefc.showRevocationMessage(); } } catch (_) {} });
     const nav = document.getElementById('nav'), bg = document.getElementById('burger');
     bg.onclick = () => { const o = nav.classList.toggle('open'); bg.setAttribute('aria-expanded', o); bg.innerHTML = o ? ICON.close : ICON.menu; };
     document.getElementById('hsearch').onsubmit = (e) => { e.preventDefault(); runSearch(document.getElementById('hq').value); };
     const sx = document.getElementById('sx'); if (sx) sx.onclick = () => { document.getElementById('sticky').classList.add('hidden'); document.body.classList.remove('has-sticky'); };
-    // линкове с параметри (за сигурно навигиране)
-    document.querySelectorAll('a[data-p]').forEach((a) => a.addEventListener('click', (e) => { const [k, v] = a.dataset.p.split('='); e.preventDefault(); go(a.getAttribute('href').split('?')[0], k, v); }));
-    document.querySelectorAll('.nav a[href*="type="]').forEach((a) => a.addEventListener('click', (e) => { e.preventDefault(); go('praznici.html', 'type', 'church'); }));
   }
 
   // Бутони „копирай“ и споделяне вътре в страницата
@@ -158,13 +165,5 @@
     const c = e.target.closest('[data-copy]');
     if (c) copyText(c.dataset.copy);
   });
-  // линкове към динамични страници: поставят параметъра преди преминаване
-  document.addEventListener('click', (e) => {
-    const a = e.target.closest('a[data-go]');
-    if (!a) return;
-    e.preventDefault(); const [k, v] = a.dataset.go.split(/=(.+)/); go(a.getAttribute('href').split('?')[0], k, v);
-  });
-
-  const lnk = (page, k, v) => `${page}?${k}=${encodeURIComponent(v)}`;
-  window.UI = { ICON, mount, param, go, esc, plural, daysAway, copyText, shareLinks, adBlock, lnk, store };
+  window.UI = { ICON, mount, param, esc, plural, daysAway, copyText, shareLinks, adBlock, store };
 })();
