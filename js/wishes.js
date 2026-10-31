@@ -6,7 +6,10 @@
   const card = (w, nm) => { const t = w.t.replace(/\{name\}/g, nm || 'приятелю'); return `<div class="wish" data-raw="${UI.esc(w.t)}"><span class="tag national">${CT.CATS[w.c]}</span><p>${UI.esc(t).replace(/\n/g, '<br>')}</p><div class="share-row"><button class="btn ghost sm" data-copy="${UI.esc(t)}">${I.copy}Копирай</button>${UI.shareLinks(t)}</div></div>`; };
   const occCards = Object.keys(CT.WISH_TITLES).map((k) => `<a class="evt" href="${R.wishes(k)}"><div class="dt national">${I.heart}</div><div class="tx"><strong>Пожелания за ${UI.esc(CT.WISH_TITLES[k].toLowerCase())}</strong><span>${CT.wishList(k, 'all').length} пожелания</span></div></a>`).join('');
 
-  const recipChips = `<section><h2 style="margin-bottom:10px">Пожелания за рожден ден – за кого е</h2><div class="chips">${RT.RECIP.map((x) => `<a class="chip" href="${R.wishRec(x.slug)}">${UI.esc(x.h1.replace('Пожелания за ', '').replace('рожден ден на ', '').replace('рожден ден', 'рожден ден'))}</a>`).join('')}</div></section>`;
+  const chipList = (kind) => RT.RECIP.filter((r) => r.kind === kind).map((r) => `<a class="chip" href="${R.wishRec(r.slug)}">${UI.esc(r.chip)}</a>`).join('');
+  const recipChips = `<section><h2 style="margin-bottom:10px">Пожелания за рожден ден – по стил</h2><div class="chips">${chipList('style')}</div></section>
+    <section><h2 style="margin-bottom:10px">Пожелания за рожден ден – за кого е</h2><div class="chips">${chipList('recip')}</div></section>
+    <p class="notice">Картички с пожелания – очаквайте скоро. <a href="${R.cards()}">Научете повече</a></p>`;
 
   if (!occ || !CT.WISH_TITLES[occ]) {
     UI.mount('wishes', {
@@ -22,7 +25,7 @@
   }
   const title = CT.WISH_TITLES[occ];
   const present = Object.keys(CT.CATS).filter((k) => CT.wishList(occ, k).length);
-  const sections = present.map((k) => `<section id="${k}"><h2 style="margin-bottom:12px">${CT.CATS[k]}</h2><div class="wishes two">${CT.wishList(occ, k).map((w) => card(w)).join('')}</div></section>`).join('');
+  const sections = (occ === 'rozhden' ? ['short', 'fun'] : present).filter((k) => present.includes(k)).map((k) => `<section id="${k}"><h2 style="margin-bottom:12px">${CT.CATS[k]}</h2><div class="wishes two">${CT.wishList(occ, k).map((w) => card(w)).join('')}</div></section>`).join('');
   UI.mount('wishes', {
     title: `Пожелания за ${title.toLowerCase()}`,
     month: 0,
@@ -31,7 +34,7 @@
       <p class="muted" style="max-width:64ch">Изберете пожелание, копирайте го и го изпратете през Viber или Facebook.</p>
       <div class="chips" role="navigation" aria-label="Категории">${present.map((k) => `<a class="chip tab" href="#${k}">${CT.CATS[k]}</a>`).join('')}</div>
       <div class="field" id="namef" ${NAMED.includes(occ) ? '' : 'hidden'}><label for="nm">Име на именика или рожденика</label><input id="nm" placeholder="Напр. Мария" autocomplete="off"></div></header>
-    ${occ === 'rozhden' ? recipChips : ''}${sections}${UI.adBlock('ad-inline', 'Реклама · между блоковете')}
+    ${occ === 'rozhden' ? recipChips : ''}${occ === 'rozhden' ? '' : sections}${UI.adBlock('ad-inline', 'Реклама · между блоковете')}
     <section><h2 style="margin-bottom:10px">Пожелания за други поводи</h2><div class="chips">${Object.keys(CT.WISH_TITLES).filter((k) => k !== occ).map((k) => `<a class="chip" href="${R.wishes(k)}">${UI.esc(CT.WISH_TITLES[k])}</a>`).join('')}</div></section>`,
   });
   const nm = document.getElementById('nm');

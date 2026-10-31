@@ -59,6 +59,7 @@ CT.HOLIDAYS.forEach((h) => {
 add({ path: 'vakancii/', script: 'vakancii', type: 'vac', title: `Ученически ваканции 2026/2027 – график по класове | ${SITE}`, desc: 'Официален график на МОН за 2026/2027: есенна, коледна, междусрочна и пролетна ваканция, неучебни дни и край на учебната година по класове.', pri: 0.85, crumbs: [['Ваканции', 'vakancii/']] });
 const CATSHORT = { fun: 'забавни', colleagues: 'за колеги', family: 'за роднини', friends: 'за приятели', romantic: 'романтични', poem: 'в стихове', short: 'кратки' };
 add({ path: 'pozhelaniya/', script: 'wishes', type: 'wishes', title: `Пожелания и поздравления за всеки повод | ${SITE}`, desc: 'Готови пожелания за имен ден, рожден ден, Коледа, Нова година, 3 март и Великден. Забавни, за колеги, за роднини, в стихове и кратки за Viber.', pri: 0.85, crumbs: [['Пожелания', 'pozhelaniya/']] });
+add({ path: 'pozhelaniya/kartichki/', script: 'cards', type: 'cards', noindex: true, title: `Картички с пожелания – очаквайте скоро | ${SITE}`, desc: 'Картички с пожелания за имен ден, рожден ден, Коледа и Нова година – очаквайте скоро.', pri: 0.1, crumbs: [['Пожелания', 'pozhelaniya/'], ['Картички', 'pozhelaniya/kartichki/']] });
 RT.RECIP.forEach((x) => add({ path: `pozhelaniya/rozhden-den/${x.slug}/`, script: 'wishrec', extra: ['wishdata'], type: 'wish-rec', page: { slug: x.slug }, title: `${x.h1} – кратки и сърдечни | ${SITE}`, desc: trim(x.desc + ' Копирайте и изпратете през Viber или Facebook.', 158), pri: 0.7, crumbs: [['Пожелания', 'pozhelaniya/'], ['Рожден ден', 'pozhelaniya/rozhden-den/'], [x.h1.replace('Пожелания за ', ''), `pozhelaniya/rozhden-den/${x.slug}/`]] }));
 Object.entries(RT.OCC_SLUG).forEach(([occ, s]) => {
   const t = CT.WISH_TITLES[occ];
@@ -107,7 +108,7 @@ function shell(p, prerender) {
 <title>${esc(p.title)}</title>
 <meta name="description" content="${esc(p.desc)}">
 <link rel="canonical" href="${url}">
-<meta name="robots" content="${NOINDEX ? 'noindex, nofollow' : 'index, follow, max-image-preview:large'}">
+<meta name="robots" content="${NOINDEX || p.noindex ? 'noindex, nofollow' : 'index, follow, max-image-preview:large'}">
 <meta name="theme-color" content="#7c3aed">
 <meta property="og:type" content="website"><meta property="og:site_name" content="${SITE}"><meta property="og:locale" content="bg_BG">
 <meta property="og:title" content="${esc(p.title)}"><meta property="og:description" content="${esc(p.desc)}"><meta property="og:url" content="${url}">
@@ -175,7 +176,7 @@ const MIME = { '.js': 'text/javascript', '.css': 'text/css', '.svg': 'image/svg+
 
   // sitemap, robots, 404
   const d = today.toISOString().slice(0, 10);
-  fs.writeFileSync(path.join(OUT, 'sitemap.xml'), `<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n${pages.map((p) => `  <url><loc>${abs(p.path)}</loc><lastmod>${d}</lastmod><priority>${p.pri.toFixed(2)}</priority></url>`).join('\n')}\n</urlset>\n`);
+  fs.writeFileSync(path.join(OUT, 'sitemap.xml'), `<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n${pages.filter((p) => !p.noindex).map((p) => `  <url><loc>${abs(p.path)}</loc><lastmod>${d}</lastmod><priority>${p.pri.toFixed(2)}</priority></url>`).join('\n')}\n</urlset>\n`);
   const AIBOTS = ['OAI-SearchBot', 'ChatGPT-User', 'GPTBot', 'PerplexityBot', 'Perplexity-User', 'ClaudeBot', 'Claude-User', 'Claude-SearchBot', 'Google-Extended', 'Applebot-Extended'];
   fs.writeFileSync(path.join(OUT, 'robots.txt'), NOINDEX ? 'User-agent: *\nDisallow: /\n' : `User-agent: *\nAllow: /\n\n# Търсачки и асистенти с изкуствен интелект – разрешени\n${AIBOTS.map((x) => `User-agent: ${x}\nAllow: /\n`).join('\n')}\nSitemap: ${abs('sitemap.xml')}\n`);
   if (!NOINDEX) {
