@@ -1,5 +1,7 @@
-name: Изграждане и публикуване
+name: Преглед в GitHub Pages
 
+# Всяко сливане в main изгражда сайта и го публикува за преглед в GitHub Pages (с noindex).
+# На домейна се публикува отделно, ръчно: workflow „Публикуване на домейна“.
 on:
   push:
     branches: [main]
@@ -11,7 +13,7 @@ permissions:
   id-token: write
 
 concurrency:
-  group: deploy
+  group: pages
   cancel-in-progress: true
 
 jobs:
@@ -24,16 +26,8 @@ jobs:
           node-version: 20
       - run: npm install
       - run: npx playwright install --with-deps chromium
-      - name: Изграждане за хостинга (канонични адреси към kalendarat.com; AdSense, ако е зададен)
-        env:
-          ADSENSE_ID: ${{ vars.ADSENSE_ID }}
-        run: OUT=dist node tools/build.cjs
-      - name: Изграждане на копие за GitHub Pages (без индексиране)
+      - name: Изграждане на копие за преглед (без индексиране)
         run: NOINDEX=1 OUT=dist-pages node tools/build.cjs
-      - uses: actions/upload-artifact@v4
-        with:
-          name: site
-          path: dist
       - uses: actions/upload-pages-artifact@v3
         with:
           path: dist-pages
@@ -47,22 +41,3 @@ jobs:
     steps:
       - id: deployment
         uses: actions/deploy-pages@v4
-
-  # Качване на хостинга по FTP. Включва се от Settings → Secrets and variables → Actions → Variables: DEPLOY_HOSTING = true
-  deploy-hosting:
-    needs: build
-    if: ${{ vars.DEPLOY_HOSTING == 'true' }}
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/download-artifact@v4
-        with:
-          name: site
-          path: dist
-      - uses: SamKirkland/FTP-Deploy-Action@v4.3.5
-        with:
-          server: ${{ secrets.FTP_SERVER }}
-          username: ${{ secrets.FTP_USERNAME }}
-          password: ${{ secrets.FTP_PASSWORD }}
-          protocol: ${{ vars.FTP_PROTOCOL || 'ftp' }}
-          local-dir: dist/
-          server-dir: ${{ vars.FTP_DIR || '/public_html/' }}

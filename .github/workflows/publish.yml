@@ -1,0 +1,40 @@
+name: Публикуване на домейна
+
+# Качва истинския сайт на хостинга по FTP. Пуска се ръчно (Actions → този workflow → Run workflow)
+# или при публикуване на Release. Изгражда от клона main.
+on:
+  workflow_dispatch:
+  release:
+    types: [published]
+
+permissions:
+  contents: read
+
+concurrency:
+  group: publish
+  cancel-in-progress: false
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: main
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+      - run: npm install
+      - run: npx playwright install --with-deps chromium
+      - name: Изграждане за домейна (канонични адреси към kalendarat.com; AdSense, ако е зададен)
+        env:
+          ADSENSE_ID: ${{ vars.ADSENSE_ID }}
+        run: OUT=dist node tools/build.cjs
+      - uses: SamKirkland/FTP-Deploy-Action@v4.3.5
+        with:
+          server: ${{ secrets.FTP_SERVER }}
+          username: ${{ secrets.FTP_USERNAME }}
+          password: ${{ secrets.FTP_PASSWORD }}
+          protocol: ${{ vars.FTP_PROTOCOL || 'ftp' }}
+          local-dir: dist/
+          server-dir: ${{ vars.FTP_DIR || '/public_html/' }}

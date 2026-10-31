@@ -10,15 +10,16 @@
 - Връзките и файловете са относителни, затова изградената папка работи и на домейн (kalendarat.com), и в подпапка (GitHub Pages).
 - Каноничните връзки и sitemap винаги са към `https://kalendarat.com`.
 
-## Автоматично публикуване (`.github/workflows/deploy.yml`)
-При всяко сливане в `main` GitHub изгражда сайта и:
-1. публикува копие в **GitHub Pages** (с `noindex`, за преглед) – Settings → Pages → Source: **GitHub Actions**;
-2. качва истинския сайт на **хостинга по FTP** – ако е включено (вижте по-долу).
+## Публикуване: първо преглед, после домейн
+1. **Преглед.** Промените се сливат в `main` (pull request). Workflow „Преглед в GitHub Pages“ изгражда сайта и го публикува на
+   `https://<потребител>.github.io/kalendarat/` (с `noindex`). Нужна настройка: Settings → Pages → Source: **GitHub Actions**.
+2. **Домейн.** Когато прегледът е наред: Actions → „Публикуване на домейна“ → **Run workflow** (или публикувайте Release).
+   Сайтът се изгражда за kalendarat.com и се качва на хостинга по FTP.
 
 ### Връзка с хостинга (FTP)
 В репото: Settings → Secrets and variables → Actions.
 - Secrets: `FTP_SERVER` (напр. `ftp.вашият-хостинг.bg`), `FTP_USERNAME`, `FTP_PASSWORD`.
-- Variables: `DEPLOY_HOSTING` = `true`; по желание `FTP_DIR` (по подразбиране `/public_html/`) и `FTP_PROTOCOL` (`ftp`, `ftps` или `ftps-legacy`).
+- Variables (по желание): `FTP_DIR` (по подразбиране `/public_html/`), `FTP_PROTOCOL` (`ftp`, `ftps` или `ftps-legacy`), `ADSENSE_ID`.
 
 ## Google AdSense
 1. Купете домейна и пуснете сайта на него (HTTPS е задължителен).

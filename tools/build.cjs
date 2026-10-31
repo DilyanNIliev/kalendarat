@@ -75,7 +75,8 @@ const INFO_DESC = {
   'uslovia-za-polzvane': 'Условия за ползване на kalendarat: справочен характер на информацията, отговорност и авторски права.',
   metodologiya: 'Откъде са данните на kalendarat и как изчисляваме празниците, Великден, равноденствията, смяната на часа и мостовете.',
 };
-Object.entries(RT.INFO).forEach(([k, t]) => add({ path: `${k}/`, script: 'info', type: 'info', page: { key: k }, title: `${t} | ${SITE}`, desc: INFO_DESC[k], pri: 0.3, crumbs: [[t, `${k}/`]] }));
+const INFO_TITLE = { 'za-nas': 'За нас – справочник за празници и почивни дни', kontakt: 'Контакти и поправки в датите', 'politika-za-poveritelnost': 'Политика за поверителност – данни и реклами', biskvitki: 'Бисквитки – как ги използваме и управляваме', 'uslovia-za-polzvane': 'Условия за ползване и отказ от отговорност', metodologiya: 'Методология и източници на данните' };
+Object.entries(RT.INFO).forEach(([k, t]) => add({ path: `${k}/`, script: 'info', type: 'info', page: { key: k }, title: `${INFO_TITLE[k] || t} | ${SITE}`, desc: INFO_DESC[k], pri: 0.3, crumbs: [[t, `${k}/`]] }));
 
 pages.forEach((p) => { if (p.title.length > 66) p.title = p.title.replace(` | ${SITE}`, ''); });
 
