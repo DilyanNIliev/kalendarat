@@ -88,7 +88,9 @@
     let y = Math.min(last, Math.max(first, year || now.getFullYear()));
     let compact = !!opts.compact;
     const start = () => { const m = opts.month !== undefined ? opts.month : (y === now.getFullYear() ? now.getMonth() : 0); return Math.min(m, 9); };
+    let drawn = false;
     const draw = () => {
+      drawn = true;
       document.getElementById('cal-year').textContent = y;
       const s = start(), months = compact ? [s, s + 1, s + 2] : BG.MONTHS.map((_, i) => i);
       document.getElementById('year-grid').innerHTML = months.map((i) => `<section class="panel month-card${y === now.getFullYear() && i === now.getMonth() ? ' current' : ''}"><h3>${BG.MONTHS[i]}</h3><div id="mc${i}"></div><div class="day-detail" id="md${i}" aria-live="polite"></div></section>`).join('');
@@ -102,6 +104,8 @@
     document.getElementById('prev').onclick = () => { if (y > first) { y--; draw(); } };
     document.getElementById('next').onclick = () => { if (y < last) { y++; draw(); } };
     document.getElementById('cal-expand').onclick = () => { compact = false; draw(); };
+    const jump = document.getElementById('cal-jump');
+    if (jump) jump.addEventListener('click', () => { if (!drawn && !window.__PRERENDER) draw(); });
     const host = document.getElementById('year-grid');
     if ('IntersectionObserver' in window && !window.__PRERENDER) {
       const io = new IntersectionObserver((e) => { if (e.some((x) => x.isIntersecting)) { io.disconnect(); draw(); } }, { rootMargin: '400px' });

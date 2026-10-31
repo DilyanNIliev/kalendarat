@@ -129,7 +129,7 @@
         <form class="search" role="search" id="hsearch"><label class="sr" for="hq">Търсене на име или празник</label>
           <input id="hq" type="search" list="hlist" placeholder="Име или празник, напр. Георги" autocomplete="off"><button type="submit" aria-label="Търси">${ICON.search}<span>Търси</span></button>
           <datalist id="hlist">${searchIndex().map((n) => `<option value="${esc(n)}">`).join('')}</datalist></form>
-        <div class="tools">${SKIN_BUTTON ? `<button class="ibtn" id="theme" aria-label="Смени темата" title="Смени темата">${ICON.palette}</button>` : ''}<button class="ibtn" id="mode" type="button"></button><button class="ibtn burger" id="burger" aria-label="Меню" aria-expanded="false">${ICON.menu}</button></div>
+        <div class="tools">${cal !== false ? `<a class="ibtn jump" href="#year-cal" id="cal-jump" aria-label="Към календара" title="Към календара">${ICON.dayoff}<span>Календар</span></a>` : ''}${SKIN_BUTTON ? `<button class="ibtn" id="theme" aria-label="Смени темата" title="Смени темата">${ICON.palette}</button>` : ''}<button class="ibtn" id="mode" type="button"></button><button class="ibtn burger" id="burger" aria-label="Меню" aria-expanded="false">${ICON.menu}</button></div>
         <nav class="nav" id="nav" aria-label="Основно меню">${navLinks}</nav>
       </div></header>
       ${ADS ? `<div class="wrap">${adBlock('ad-top', 'Реклама · банер 320×100 / 728×90')}</div>` : ''}
