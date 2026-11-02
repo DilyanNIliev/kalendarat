@@ -351,3 +351,6 @@ table.tbl { width: 100%; border-collapse: collapse; font-size: .95rem; }
 .ibtn.jump span { display: none; }
 @media (min-width: 420px) { .ibtn.jump span { display: inline; } }
 #year-cal { scroll-margin-top: 130px; }
+
+/* „Най-търсено“ остава видимо при скрол (десктоп) */
+@media (min-width: 1024px) { .aside .popular { position: sticky; top: 140px; align-self: start; } }
