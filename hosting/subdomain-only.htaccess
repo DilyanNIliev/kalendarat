@@ -1,0 +1,4 @@
+# Само за папката на поддомейна kalendarat.com.dilyanilievdesign.com
+# Пренасочва всичко към https://kalendarat.com със същия път
+RewriteEngine On
+RewriteRule ^(.*)$ https://kalendarat.com/$1 [R=301,L]

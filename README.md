@@ -19,7 +19,7 @@
 ### Връзка с хостинга (FTP)
 В репото: Settings → Secrets and variables → Actions.
 - Secrets: `FTP_SERVER` (напр. `ftp.вашият-хостинг.bg`), `FTP_USERNAME`, `FTP_PASSWORD`.
-- Variables (по желание): `FTP_DIR` (по подразбиране `/public_html/`), `FTP_PROTOCOL` (`ftp`, `ftps` или `ftps-legacy`), `ADSENSE_ID`.
+- Variables: `FTP_DIR` – папката на сайта на хостинга (напр. `/public_html/kalendarat.com/`, виж Document Root в cPanel → Домейни; по подразбиране `/public_html/`), `FTP_PROTOCOL` (`ftp`, `ftps` или `ftps-legacy`), `ADSENSE_ID`.
 
 ## Google AdSense
 1. Купете домейна и пуснете сайта на него (HTTPS е задължителен).

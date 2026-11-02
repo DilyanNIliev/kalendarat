@@ -187,6 +187,7 @@ const MIME = { '.js': 'text/javascript', '.css': 'text/css', '.svg': 'image/svg+
       sec('Имени дни', (p) => p.type === 'names' || p.type === 'group') + '\n' + sec('Пожелания', (p) => p.type === 'wishes' || p.type === 'wish-occ' || p.type === 'wish-rec') + '\n' + sec('За сайта', (p) => p.type === 'info'));
   }
   fs.writeFileSync(path.join(OUT, '404.html'), `<!doctype html><html lang="bg"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>Страницата не е намерена | ${SITE}</title><meta name="robots" content="noindex"><style>body{margin:0;font:16px/1.6 system-ui,sans-serif;background:#f6f2fd;color:#1f1236}main{max-width:560px;margin:0 auto;padding:72px 16px}a{display:inline-block;background:#6d28d9;color:#fff;padding:12px 20px;border-radius:12px;text-decoration:none;font-weight:700}</style></head><body><main><h1>Страницата не е намерена</h1><p>Адресът не съществува или е преместен.</p><p><a href="${ORIGIN}/">Към началото</a></p></main></body></html>`);
+  if (!NOINDEX && fs.existsSync(path.join(ROOT, 'hosting/kalendarat.com.htaccess'))) fs.copyFileSync(path.join(ROOT, 'hosting/kalendarat.com.htaccess'), path.join(OUT, '.htaccess'));
   if (ADS_ID) fs.writeFileSync(path.join(OUT, 'ads.txt'), `google.com, pub-${ADS_ID.slice(7)}, DIRECT, f08c47fec0942fa0\n`);
   fs.writeFileSync(path.join(OUT, '.nojekyll'), '');
   if (OUT !== ROOT) { ['css', 'js'].forEach((d) => fs.cpSync(path.join(ROOT, d), path.join(OUT, d), { recursive: true })); }

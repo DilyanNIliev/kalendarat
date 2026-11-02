@@ -1,0 +1,11 @@
+# ОСНОВЕН ДОМЕЙН dilyanilievdesign.com (папка public_html, до index.html „Скоро“)
+
+RewriteEngine On
+
+# Поддомейнът kalendarat.com.dilyanilievdesign.com → https://kalendarat.com (със същия път)
+RewriteCond %{HTTP_HOST} ^kalendarat\.com\.dilyanilievdesign\.com$ [OR]
+RewriteCond %{HTTP_HOST} ^www\.kalendarat\.com\.dilyanilievdesign\.com$
+RewriteRule ^(.*)$ https://kalendarat.com/$1 [R=301,L]
+
+# Без списък с файлове, ако липсва index
+Options -Indexes
