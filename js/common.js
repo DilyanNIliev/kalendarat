@@ -50,7 +50,13 @@
   const autoMode = () => { const h = sofiaHour(); return h >= 19 || h < 7 ? 'dark' : 'light'; };
   const seasonId = () => { try { return Season.pick(new Date(), location.hash.slice(1)).d.id; } catch (_) { return ''; } };
   // Основната (лилава) тема е по подразбиране. Сезонни теми (напр. коледна) се включват ръчно.
-  function skinFor(pref) { return SKINS.includes(pref) && pref !== 'auto' ? pref : 'purple'; }
+  // Автоматично: коледна тема от 1 ноември до 10 януари (по българско време), иначе основната лилава.
+  function seasonSkin() {
+    let m, d;
+    try { const p = {}; new Intl.DateTimeFormat('en-GB', { timeZone: 'Europe/Sofia', month: 'numeric', day: 'numeric' }).formatToParts(new Date()).forEach((x) => (p[x.type] = +x.value)); m = p.month; d = p.day; } catch (_) { const n = new Date(); m = n.getMonth() + 1; d = n.getDate(); }
+    return m >= 11 || m === 12 || (m === 1 && d <= 10) ? 'christmas' : 'purple';
+  }
+  function skinFor(pref) { return SKINS.includes(pref) && pref !== 'auto' ? pref : seasonSkin(); }
   function applySkin(s) { if (s === 'purple') root.removeAttribute('data-skin'); else root.dataset.skin = s; }
   function applyMode() {
     const pref = read('mode', 'auto');
