@@ -12,6 +12,9 @@ RewriteCond %{HTTPS} !=on [OR]
 RewriteCond %{HTTP_HOST} !^kalendarat\.com$ [NC]
 RewriteRule ^ https://kalendarat.com%{REQUEST_URI} [L,R=301]
 
+# Текстовите файлове (robots.txt, llms.txt) да са в UTF-8
+AddDefaultCharset UTF-8
+
 # 2) Страница за липсващи адреси
 ErrorDocument 404 /404.html
 

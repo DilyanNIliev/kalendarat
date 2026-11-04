@@ -179,7 +179,7 @@ const MIME = { '.js': 'text/javascript', '.css': 'text/css', '.svg': 'image/svg+
   const d = today.toISOString().slice(0, 10);
   fs.writeFileSync(path.join(OUT, 'sitemap.xml'), `<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n${pages.filter((p) => !p.noindex).map((p) => `  <url><loc>${abs(p.path)}</loc><lastmod>${d}</lastmod><priority>${p.pri.toFixed(2)}</priority></url>`).join('\n')}\n</urlset>\n`);
   const AIBOTS = ['OAI-SearchBot', 'ChatGPT-User', 'GPTBot', 'PerplexityBot', 'Perplexity-User', 'ClaudeBot', 'Claude-User', 'Claude-SearchBot', 'Google-Extended', 'Applebot-Extended'];
-  fs.writeFileSync(path.join(OUT, 'robots.txt'), NOINDEX ? 'User-agent: *\nDisallow: /\n' : `User-agent: *\nAllow: /\n\n# Търсачки и асистенти с изкуствен интелект – разрешени\n${AIBOTS.map((x) => `User-agent: ${x}\nAllow: /\n`).join('\n')}\nSitemap: ${abs('sitemap.xml')}\n`);
+  fs.writeFileSync(path.join(OUT, 'robots.txt'), NOINDEX ? 'User-agent: *\nDisallow: /\n' : `User-agent: *\nAllow: /\n\n# AI search engines and assistants are allowed\n${AIBOTS.map((x) => `User-agent: ${x}\nAllow: /\n`).join('\n')}\nSitemap: ${abs('sitemap.xml')}\n`);
   if (!NOINDEX) {
     const sec = (title, filter) => `## ${title}\n` + pages.filter(filter).map((p) => `- [${p.title.replace(` | ${SITE}`, '')}](${abs(p.path)}): ${p.desc}`).join('\n') + '\n';
     fs.writeFileSync(path.join(OUT, 'llms.txt'), `# ${SITE}\n\n> Български справочник за официални празници и почивни дни, църковен календар, имени дни, ученически ваканции и пожелания. Данните са по Кодекса на труда, решенията на Министерския съвет и графика на МОН; обновяваме ги редовно (последна промяна: ${ISO}).\n\n` +
