@@ -365,3 +365,6 @@ table.tbl { width: 100%; border-collapse: collapse; font-size: .95rem; }
 }
 @keyframes flakes { from { background-position: 0 0, 0 0, 0 0; } to { background-position: 0 300px, 0 210px, 0 140px; } }
 @media (prefers-reduced-motion: reduce) { .season.christmas::before, .season.newyear::before { animation: none; } }
+
+/* Без стрелката на браузъра в полето за търсене (подсказките остават) */
+input[list]::-webkit-calendar-picker-indicator { display: none !important; opacity: 0; pointer-events: none; }
