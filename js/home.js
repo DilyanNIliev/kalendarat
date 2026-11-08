@@ -24,7 +24,7 @@
         <div class="facts">
           ${fact('dayoff', 'dayoff', 'Почивен ден', offToday ? `Да – ${UI.esc(offToday)}` : weekend ? 'Да – уикенд' : 'Не, работен ден')}
           ${fact('church', 'church', 'Празник', holidays.length ? holidays.map((h) => UI.esc(h.title)).join(', ') : 'Няма отбелязан празник')}
-          ${fact('name', 'name', 'Имен ден', names.length ? names.slice(0, 8).map(UI.esc).join(', ') : 'Днес не се празнува имен ден')}
+          ${fact('name', 'name', 'Имен ден', names.length ? names.map((n) => `<a href="${RT.nameHref(n)}">${UI.esc(n)}</a>`).join(', ') : 'Днес не се празнува имен ден')}
           ${sky.length ? fact('sky', 'fast', 'Календар', sky.map((e) => UI.esc(e.title)).join('<br>')) : ''}
           ${vacNow ? fact('vac', 'vac', 'Ваканция', UI.esc(vacNow.name)) : ''}
         </div>
