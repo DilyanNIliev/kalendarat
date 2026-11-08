@@ -1,8 +1,10 @@
 name: Публикуване на домейна
 
-# Качва истинския сайт на хостинга по FTP. Пуска се ръчно (Actions → този workflow → Run workflow)
-# или при публикуване на Release. Изгражда от клона main.
+# Качва истинския сайт на хостинга по FTP. Пуска се автоматично при всяко сливане в main,
+# ръчно (Actions → този workflow → Run workflow) или при публикуване на Release.
 on:
+  push:
+    branches: [main]
   workflow_dispatch:
   release:
     types: [published]
