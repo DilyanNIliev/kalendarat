@@ -105,6 +105,7 @@
     const add = (date, title, type, extra) => {
       const k = BG.key(date) + '|' + title;
       if (!map[k]) map[k] = { date, title, types: [], ...extra };
+      if (extra) Object.keys(extra).forEach((x) => { if (map[k][x] === undefined) map[k][x] = extra[x]; });
       if (!map[k].types.includes(type)) map[k].types.push(type);
     };
     const ys = BG.year(y);
