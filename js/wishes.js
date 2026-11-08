@@ -31,7 +31,7 @@
     month: 0,
     main: `<div class="crumbs"><a href="${R.home()}">Начало</a> / <a href="${R.wishes()}">Пожелания</a> / ${UI.esc(title)}</div>
     <header class="hero"><h1>Пожелания за ${UI.esc(title.toLowerCase())} – забавни, за колеги, за роднини и в стихове</h1>
-      <p class="muted" style="max-width:64ch">Изберете пожелание, копирайте го и го изпратете през Viber или Facebook.</p>
+      <p class="muted" style="max-width:64ch">Изберете пожелание, копирайте го и го изпратете, на когото искате.</p>
       <div class="chips" role="navigation" aria-label="Категории">${present.map((k) => `<a class="chip tab" href="#${k}">${CT.CATS[k]}</a>`).join('')}</div>
       <div class="field" id="namef" ${NAMED.includes(occ) ? '' : 'hidden'}><label for="nm">Име на именника или рожденика</label><input id="nm" placeholder="Напр. Мария" autocomplete="off"></div></header>
     ${occ === 'rozhden' ? recipChips : ''}${occ === 'rozhden' ? '' : sections}${UI.adBlock('ad-inline', 'Реклама · между блоковете')}

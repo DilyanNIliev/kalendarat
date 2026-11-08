@@ -89,7 +89,9 @@
     const fallback = () => { const ta = document.createElement('textarea'); ta.value = text; ta.style.position = 'fixed'; ta.style.opacity = '0'; document.body.appendChild(ta); ta.select(); try { document.execCommand('copy'); toast('Копирано'); } catch (_) { toast('Маркирайте текста и го копирайте'); } ta.remove(); };
     if (navigator.clipboard && navigator.clipboard.writeText) navigator.clipboard.writeText(text).then(() => toast('Копирано'), fallback); else fallback();
   }
+  const SHARE_BUTTONS = false; // бутони Facebook/Viber – скрити за сега
   const shareLinks = (text) => {
+    if (!SHARE_BUTTONS) return '';
     const url = location.href.split('#')[0];
     return `<a class="btn fb sm" target="_blank" rel="noopener" href="https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(url)}&quote=${encodeURIComponent(text)}">${ICON.fb}Facebook</a>
       <a class="btn vb sm" href="viber://forward?text=${encodeURIComponent(text + ' ' + url)}">${ICON.viber}Viber</a>`;

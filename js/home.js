@@ -9,6 +9,11 @@
   const sky = evToday.filter((e) => e.types.includes('clock') || e.types.includes('equinox'));
   const nameEv = evToday.filter((e) => e.types.includes('name'));
   const names = [...new Set(nameEv.flatMap((e) => e.names))];
+  const lnk = (n) => `<a href="${RT.nameHref(n)}">${UI.esc(n)}</a>`;
+  const NAMES_SHOWN = 8;
+  const nameLinks = names.length > NAMES_SHOWN
+    ? `${names.slice(0, NAMES_SHOWN).map(lnk).join(', ')}<span id="nm-more" hidden>, ${names.slice(NAMES_SHOWN).map(lnk).join(', ')}</span> <button type="button" class="more-names" id="nm-btn" data-n="${names.length}" aria-expanded="false" aria-controls="nm-more">Покажи всички (${names.length})</button>`
+    : names.map(lnk).join(', ');
   const vacNow = CT.VAC.find((v) => v.from <= today && v.to >= today);
 
   const wd = BG.WEEKDAYS[now.getDay()];
@@ -24,7 +29,7 @@
         <div class="facts">
           ${fact('dayoff', 'dayoff', 'Почивен ден', offToday ? `Да – ${UI.esc(offToday)}` : weekend ? 'Да – уикенд' : 'Не, работен ден')}
           ${fact('church', 'church', 'Празник', holidays.length ? holidays.map((h) => UI.esc(h.title)).join(', ') : 'Няма отбелязан празник')}
-          ${fact('name', 'name', 'Имен ден', names.length ? names.map((n) => `<a href="${RT.nameHref(n)}">${UI.esc(n)}</a>`).join(', ') : 'Днес не се празнува имен ден')}
+          ${fact('name', 'name', 'Имен ден', names.length ? nameLinks : 'Днес не се празнува имен ден')}
           ${sky.length ? fact('sky', 'fast', 'Календар', sky.map((e) => UI.esc(e.title)).join('<br>')) : ''}
           ${vacNow ? fact('vac', 'vac', 'Ваканция', UI.esc(vacNow.name)) : ''}
         </div>
@@ -83,5 +88,13 @@
     main: introHtml + todayHtml + seasonHtml + tomorrowHtml + cdHtml + upHtml + UI.adBlock('ad-inline', 'Реклама · между блоковете 300×250 / 728×90') + bridgeHtml + vacHtml + UI.adBlock('ad-inline', 'Реклама · между блоковете'),
   });
 
+  const nb = document.getElementById('nm-btn');
+  if (nb) nb.addEventListener('click', () => {
+    const more = document.getElementById('nm-more');
+    const open = more.hidden;
+    more.hidden = !open;
+    nb.setAttribute('aria-expanded', String(open));
+    nb.textContent = open ? 'Скрий' : `Покажи всички (${nb.dataset.n})`;
+  });
   Season.start(document.querySelector('main'));
 })();
