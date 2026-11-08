@@ -75,7 +75,7 @@
     <div class="timeline">${vacs.map((v, i) => `<div class="vrow${i === 0 ? ' next' : ''}"><div class="dd"><b>${v.from.getDate()}</b><small>${BG.MONTHS_GEN[v.from.getMonth()].slice(0, 3)}</small></div>
       <div><strong>${UI.esc(v.name)}${i === 0 ? '<span class="badge-next">Следва</span>' : ''}</strong><span>${BG.fmt(v.from)}${+v.from === +v.to ? '' : ' – ' + BG.fmt(v.to)} · ${v.grades}</span></div></div>`).join('')}</div></section>`;
 
-  const introHtml = `<header><h1>Календар на почивните дни, празниците и именните дни в България</h1><p class="muted" style="max-width:64ch;margin-top:8px">Официални празници, почивни дни и мостове, църковен календар, имени дни, ученически ваканции и пожелания – на едно място.</p></header>`;
+  const introHtml = `<header><h1>Календар на почивните дни, празниците и имени дни в България</h1><p class="muted" style="max-width:64ch;margin-top:8px">Официални празници, почивни дни и мостове, църковен календар, имени дни, ученически ваканции и пожелания – на едно място.</p></header>`;
 
   UI.mount('', {
     title: 'kalendarat',
