@@ -9,10 +9,10 @@
   const sky = evToday.filter((e) => e.types.includes('clock') || e.types.includes('equinox'));
   const nameEv = evToday.filter((e) => e.types.includes('name'));
   const names = [...new Set(nameEv.flatMap((e) => e.names))];
-  const lnk = (n) => `<a href="${RT.nameHref(n)}">${UI.esc(n)}</a>`;
+  const lnk = (n) => UI.esc(n);
   const NAMES_SHOWN = 8;
   const nameLinks = names.length > NAMES_SHOWN
-    ? `${names.slice(0, NAMES_SHOWN).map(lnk).join(', ')}<span id="nm-more" hidden>, ${names.slice(NAMES_SHOWN).map(lnk).join(', ')}</span> <button type="button" class="more-names" id="nm-btn" data-n="${names.length}" aria-expanded="false" aria-controls="nm-more">Покажи всички (${names.length})</button>`
+    ? `${names.slice(0, NAMES_SHOWN).map(lnk).join(', ')}<span id="nm-more" hidden>, ${names.slice(NAMES_SHOWN).map(lnk).join(', ')}</span> <button type="button" class="btn ghost sm more-names" id="nm-btn" data-n="${names.length}" aria-expanded="false" aria-controls="nm-more">Покажи всички (${names.length})</button>`
     : names.map(lnk).join(', ');
   const vacNow = CT.VAC.find((v) => v.from <= today && v.to >= today);
 
