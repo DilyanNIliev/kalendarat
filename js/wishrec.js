@@ -11,7 +11,7 @@
     month: 0,
     main: `<div class="crumbs"><a href="${R.home()}">Начало</a> / <a href="${R.wishes()}">Пожелания</a> / <a href="${R.wishes('rozhden')}">Рожден ден</a> / ${UI.esc(meta.chip)}</div>
     <header class="hero"><h1>${UI.esc(meta.h1)}</h1><p class="answer">${UI.esc(data.intro)}</p>
-      <p class="muted">${total} готови пожелания · копирайте или изпратете през Viber и Facebook</p>
+      <p class="muted">${total} готови пожелания · копирайте и изпратете</p>
       <div class="chips" role="navigation" aria-label="Раздели">${data.groups.map((g, i) => `<a class="chip tab" href="#g${i}">${UI.esc(g.t)}</a>`).join('')}</div></header>
     ${sections}
     <section class="prose"><h2>Как да изберете пожелание</h2><p>${UI.esc(data.tip)}</p></section>
