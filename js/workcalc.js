@@ -114,7 +114,12 @@
     res.scrollIntoView({ behavior: 'smooth', block: 'start' });
   }
 
+  const workIn = (y, m) => { let n = 0; for (let d = new Date(y, m, 1); d.getMonth() === m; d = BG.addDays(d, 1)) if (!BG.isOff(d)) n++; return n; };
+  const yearsList = BG.YEARS;
+  const totals = yearsList.map((y) => Array.from({ length: 12 }, (_, m) => workIn(y, m)).reduce((a, b) => a + b, 0));
+  const monthTable = `<table class="tbl"><thead><tr><th>Месец</th>${yearsList.map((y) => `<th>${y}</th>`).join('')}</tr></thead><tbody>${BG.MONTHS.map((mn, m) => `<tr><td data-l="Месец">${mn}</td>${yearsList.map((y) => `<td data-l="${y}">${workIn(y, m)}</td>`).join('')}</tr>`).join('')}<tr><td data-l="Месец"><b>Общо за годината</b></td>${totals.map((t, i) => `<td data-l="${yearsList[i]}"><b>${t}</b></td>`).join('')}</tr></tbody></table>`;
   const faq = [
+    [`Колко работни дни има през ${yearsList[1]} г.?`, `През ${yearsList[1]} г. има ${totals[1]} работни дни (от понеделник до петък, без официалните празници). През ${yearsList[0]} г. са ${totals[0]}.`],
     ['Как се броят работните дни?', 'Работен ден е всеки ден от понеделник до петък, който не е официален празник. Събота и неделя са почивни дни. Когато официален празник се пада в събота или неделя, почивката се прехвърля в следващите работни дни и те също се броят за почивни.'],
     ['Включва ли се крайната дата?', 'По подразбиране да – броят се първият и последният избран ден. Ако премахнете отметката „Включи крайната дата“, последният ден не се брои.'],
     ['За кои години работи калкулаторът?', `За ${BG.YEARS[0]}–${BG.YEARS[BG.YEARS.length - 1]} г. Използваме официалния списък с почивни дни, Великденските почивни дни и допълнителните почивни дни, обявени с решение на правителството.`],
@@ -148,6 +153,8 @@
       </div>
     </section>
     <div id="wc-res" class="wc-res" aria-live="polite" hidden></div>
+    <section class="panel"><h2>Работни дни по месеци – ${yearsList[0]}–${yearsList[yearsList.length - 1]}</h2>
+      <p class="muted" style="margin-bottom:10px">Броят работни дни във всеки месец, като са извадени съботите, неделите и официалните празници (включително прехвърлените почивни дни).</p>${monthTable}</section>
     <section class="panel"><h2>Често задавани въпроси</h2>
       <div class="faq">${faq.map(([q, a]) => `<div><h3>${q}</h3><p>${a}</p></div>`).join('')}</div>
       <p class="muted" style="margin-top:12px">Вижте и <a href="${R.days()}">всички почивни дни ${RT.DEFAULT_YEAR}</a> и <a href="${R.vac()}">ученическите ваканции</a>.</p></section>`;
