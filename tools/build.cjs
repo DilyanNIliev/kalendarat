@@ -100,6 +100,7 @@ function shell(p, prerender) {
   else ld.push({ '@context': 'https://schema.org', '@type': 'BreadcrumbList', itemListElement: [{ '@type': 'ListItem', position: 1, name: 'Начало', item: abs('') }].concat((p.crumbs || []).map(([n, pp], i) => ({ '@type': 'ListItem', position: i + 2, name: n, item: abs(pp) }))) });
   const root = rootOf(p.path);
   ld.push({ '@context': 'https://schema.org', '@type': 'WebPage', name: p.title, description: p.desc, url, inLanguage: 'bg', dateModified: ISO, isPartOf: { '@type': 'WebSite', name: SITE, url: abs('') } });
+  if (p.type === 'tool') ld.push({ '@context': 'https://schema.org', '@type': 'WebApplication', name: 'Калкулатор на работни дни', url, applicationCategory: 'UtilitiesApplication', operatingSystem: 'Any', inLanguage: 'bg', description: p.desc, offers: { '@type': 'Offer', price: '0', priceCurrency: 'BGN' } });
   if (p.type === 'home') ld.push({ '@context': 'https://schema.org', '@type': 'Organization', name: SITE, url: abs(''), logo: abs('favicon.svg') });
   const page = Object.assign({ type: p.type, root, updated: UPDATED }, p.page || {});
   return `<!doctype html>
