@@ -83,6 +83,7 @@
     vac: () => 'vakancii/',
     wishes: (occ) => (occ && OCC_SLUG[occ] ? `pozhelaniya/${OCC_SLUG[occ]}/` : 'pozhelaniya/'),
     season: () => 'otbroyavane/',
+    calc: () => 'kalkulator-rabotni-dni/',
     cards: () => 'pozhelaniya/kartichki/',
     wishRec: (s) => `pozhelaniya/rozhden-den/${s}/`,
     info: (k) => `${k}/`,

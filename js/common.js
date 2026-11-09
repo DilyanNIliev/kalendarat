@@ -23,7 +23,7 @@
   const LOGO = `<svg viewBox="0 0 40 40" aria-hidden="true"><rect width="40" height="40" rx="11" fill="var(--primary)"/><rect x="8" y="10" width="24" height="22" rx="4" fill="#fff"/><rect x="8" y="10" width="24" height="7" rx="3.500" fill="#c4352b"/><circle cx="14" cy="24" r="1.800" fill="var(--primary)"/><circle cx="20" cy="24" r="1.800" fill="var(--primary)"/><circle cx="26" cy="24" r="1.800" fill="#d9a441"/><circle cx="14" cy="29" r="1.800" fill="var(--primary)"/><circle cx="20" cy="29" r="1.800" fill="var(--primary)"/></svg>`;
 
   const R = RT.R;
-  const NAV = [[R.days(), 'Почивни дни', 'days'], [R.holidays(), 'Празници', 'praznici'], [R.names(), 'Имени дни', 'names'], [R.church(), 'Църковен календар', 'church'], [R.vac(), 'Ваканции', 'vac'], [R.wishes(), 'Пожелания', 'wishes']];
+  const NAV = [[R.days(), 'Почивни дни', 'days'], [R.holidays(), 'Празници', 'praznici'], [R.names(), 'Имени дни', 'names'], [R.church(), 'Църковен календар', 'church'], [R.vac(), 'Ваканции', 'vac'], [R.calc(), 'Калкулатор', 'calc'], [R.wishes(), 'Пожелания', 'wishes']];
 
   const store = {
     get(k) { try { return sessionStorage.getItem(k); } catch (_) { return null; } },
@@ -125,6 +125,7 @@
       <section class="panel popular"><h3 style="margin-bottom:8px">Най-търсено</h3>
         <a href="${R.holiday('velikden')}">Великден ${yr} ${ICON.arrow}</a>
         <a href="${R.days()}">Почивни дни ${RT.DEFAULT_YEAR} ${ICON.arrow}</a>
+        <a href="${R.calc()}">Калкулатор на работни дни ${ICON.arrow}</a>
         <a href="${R.vac()}">Ваканции 2026/2027 ${ICON.arrow}</a>
         <a href="${R.group('ivanovden')}">Имен ден на Иван ${ICON.arrow}</a>
         <a href="${R.wishes()}">Пожелания ${ICON.arrow}</a></section>`;
@@ -145,7 +146,7 @@
       <footer class="site-footer"><div class="wrap">
         <div class="cols">
           <div><h4>kalendarat</h4><p style="opacity:.9;max-width:34ch">Официални празници, почивни дни, имени дни и ученически ваканции в България.</p></div>
-          <div><h4>Разгледай</h4><a href="${R.days()}">Почивни дни</a><a href="${R.holidays()}">Празници</a><a href="${R.names()}">Имени дни</a><a href="${R.church()}">Църковен календар</a><a href="${R.vac()}">Ваканции</a><a href="${R.wishes()}">Пожелания</a><a href="${R.season()}">Отброяване до празниците</a></div>
+          <div><h4>Разгледай</h4><a href="${R.days()}">Почивни дни</a><a href="${R.holidays()}">Празници</a><a href="${R.names()}">Имени дни</a><a href="${R.church()}">Църковен календар</a><a href="${R.vac()}">Ваканции</a><a href="${R.calc()}">Калкулатор на работни дни</a><a href="${R.wishes()}">Пожелания</a><a href="${R.season()}">Отброяване до празниците</a></div>
           <div><h4>Информация</h4>${Object.entries(RT.INFO).map(([k, t]) => `<a href="${R.info(k)}">${t}</a>`).join('')}<a href="${R.info('biskvitki')}" id="cookie-settings">Настройки за бисквитки</a></div>
         </div>
         <p class="copy">© ${new Date().getFullYear()} kalendarat. Данните са информативни, проверявайте в официалните източници.${(window.__PAGE || {}).updated ? ` <span class="updated">Актуализирано: ${(window.__PAGE || {}).updated}</span>` : ''}</p>
