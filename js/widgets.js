@@ -88,22 +88,34 @@
     let y = Math.min(last, Math.max(first, year || now.getFullYear()));
     let compact = !!opts.compact;
     const start = () => { const m = opts.month !== undefined ? opts.month : (y === now.getFullYear() ? now.getMonth() : 0); return Math.min(m, 9); };
+    // позиция на първия показан месец (година * 12 + месец); в кратък изглед показва 3 месеца и се мести през 3 месеца
+    let pos = y * 12 + start();
+    const minPos = first * 12, maxPos = last * 12 + 11;
     let drawn = false;
     const draw = () => {
       drawn = true;
-      document.getElementById('cal-year').textContent = y;
-      const s = start(), months = compact ? [s, s + 1, s + 2] : BG.MONTHS.map((_, i) => i);
-      document.getElementById('year-grid').innerHTML = months.map((i) => `<section class="panel month-card${y === now.getFullYear() && i === now.getMonth() ? ' current' : ''}"><h3>${BG.MONTHS[i]}</h3><div id="mc${i}"></div><div class="day-detail" id="md${i}" aria-live="polite"></div></section>`).join('');
+      let list;
+      if (compact) {
+        pos = Math.max(minPos, Math.min(pos, maxPos - 2));
+        list = [0, 1, 2].map((k) => ({ y: Math.floor((pos + k) / 12), i: (pos + k) % 12 }));
+      } else {
+        y = Math.floor(pos / 12);
+        list = BG.MONTHS.map((_, i) => ({ y, i }));
+      }
+      const y0 = list[0].y, y1 = list[list.length - 1].y;
+      document.getElementById('cal-year').textContent = y0 === y1 ? y0 : `${y0}–${y1}`;
+      document.getElementById('year-grid').innerHTML = list.map(({ y: yy, i }) => `<section class="panel month-card${yy === now.getFullYear() && i === now.getMonth() ? ' current' : ''}"><h3>${BG.MONTHS[i]}${compact && y0 !== y1 ? ' ' + yy : ''}</h3><div id="mc${yy}-${i}"></div><div class="day-detail" id="md${yy}-${i}" aria-live="polite"></div></section>`).join('');
       document.getElementById('year-grid').style.minHeight = '';
-      months.forEach((i) => monthCal(document.getElementById('mc' + i), y, i, {
-        clickable: true, noInitial: true, detail: document.getElementById('md' + i),
-        onSelect: () => months.forEach((j) => { if (j !== i) { document.getElementById('md' + j).innerHTML = ''; document.querySelectorAll('#mc' + j + ' .day.sel').forEach((b) => b.classList.remove('sel')); } }),
+      list.forEach(({ y: yy, i }) => monthCal(document.getElementById(`mc${yy}-${i}`), yy, i, {
+        clickable: true, noInitial: true, detail: document.getElementById(`md${yy}-${i}`),
+        onSelect: () => list.forEach((o) => { if (o.y !== yy || o.i !== i) { document.getElementById(`md${o.y}-${o.i}`).innerHTML = ''; document.querySelectorAll(`#mc${o.y}-${o.i} .day.sel`).forEach((b) => b.classList.remove('sel')); } }),
       }));
       document.getElementById('cal-more').hidden = !compact;
     };
-    document.getElementById('prev').onclick = () => { if (y > first) { y--; draw(); } };
-    document.getElementById('next').onclick = () => { if (y < last) { y++; draw(); } };
-    document.getElementById('cal-expand').onclick = () => { compact = false; draw(); };
+    const step = () => (compact ? 3 : 12);
+    document.getElementById('prev').onclick = () => { if (pos > minPos) { pos = Math.max(minPos, pos - step()); draw(); } };
+    document.getElementById('next').onclick = () => { if (compact ? pos < maxPos - 2 : pos + 12 <= maxPos) { pos = compact ? Math.min(maxPos - 2, pos + step()) : pos + 12; draw(); } };
+    document.getElementById('cal-expand').onclick = () => { compact = false; pos = Math.floor(pos / 12) * 12; draw(); };
     const jump = document.getElementById('cal-jump');
     if (jump) jump.addEventListener('click', () => { if (!drawn && !window.__PRERENDER) draw(); });
     const host = document.getElementById('year-grid');
