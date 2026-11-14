@@ -50,7 +50,7 @@
   const aroundHtml = around.map(({ e, diff }) => `<li><b>${BG.fmt(e.date)}</b> – ${UI.esc(e.title)} (${rel(diff)})</li>`).join('');
   const pool = CT.wishList('imenden', null, 120);
   const gi = RT.GROUPS.findIndex((x) => x.slug === g.slug);
-  const pick = (g.names.length > 12 ? [0] : [0, 1]).map((k) => pool[(gi * 7 + k * 13) % pool.length]).filter(Boolean);
+  const pick = [0, 1, 2, 3, 4].map((k) => pool[(gi * 7 + k * 13) % pool.length]).filter((w, i, a) => w && a.indexOf(w) === i);
     const extraHtml = `<section class="prose"><h2>Кога се пада празникът</h2>
     <p>През ${date.getFullYear()} г. ${UI.esc(g.title)} е в ${dayName(date)} и е ${statusOf(date)}. През периода ${BG.YEARS[0]}–${BG.YEARS[BG.YEARS.length - 1]} датата ${g.movable ? 'се мести заедно с Великден и пада в различни дни и месеци' : `остава ${BG.fmt(date)}, но денят от седмицата се сменя`}: ${cnt.w} пъти е в работен ден, ${cnt.we} в уикенд${cnt.off ? ` и ${cnt.off} пъти е официален почивен ден` : ''}.</p>
     <p>${fast ? `Датата попада в периода на ${fast}, затова трапезата по традиция е постна – без месо, яйца и млечни продукти.` : 'Датата не попада в постен период, затова трапезата може да е обичайната празнична.'}</p></section>
@@ -61,7 +61,7 @@
     title: `Имен ден на ${shortList} – ${g.title}`,
     year: date.getFullYear(), month: date.getMonth(),
     main: `<div class="crumbs"><a href="${R.home()}">Начало</a> / <a href="${R.names()}">Имени дни</a> / ${UI.esc(g.title)}</div>
-    <header class="hero"><h1>${UI.esc(g.title)} – имен ден на ${UI.esc(g.names.slice(0, 4).join(', '))}</h1><p class="answer">${UI.esc(g.title)} е на <b>${BG.fmt(date)} ${date.getFullYear()}</b> (${wd}). Имен ден имат: ${UI.esc(g.names.slice(0, 8).join(', '))}${g.names.length > 8 ? ` и още ${g.names.length - 8} имена (вижте списъка по-долу)` : ''}.</p>
+    <header class="hero"><h1>${UI.esc(g.title)} – имен ден на ${UI.esc(g.names.slice(0, 4).join(', '))}</h1><p class="answer">${UI.esc(g.title)} е на <b>${BG.fmt(date)} ${date.getFullYear()}</b> (${wd}). Имен ден имат: ${UI.esc(g.names.slice(0, 8).join(', '))}${g.names.length > 8 ? `<span id="nm-more" hidden>, ${UI.esc(g.names.slice(8).join(', '))}</span> <button type="button" class="btn ghost sm more-names" id="nm-btn" data-n="${g.names.length}" aria-expanded="false" aria-controls="nm-more">Покажи всички имена (${g.names.length})</button>` : ''}.</p>
       <div class="date-line"><span class="date-pill num">${I.name}${BG.fmt(date)} ${date.getFullYear()}</span><span class="muted">${wd} · ${UI.daysAway(days)}</span></div>
       <div class="chips"><span class="tag name">${I.name}Имен ден</span>${holiday && holiday.type === 'church' ? `<span class="tag church">${I.church}Църковен празник</span>` : ''}${BG.offName(date) ? `<span class="tag dayoff">${I.dayoff}Почивен ден</span>` : ''}</div>
       <div class="share-row"><button class="btn ghost sm" data-copy="${UI.esc(text)}">${I.copy}Копирай поздрав</button>${UI.shareLinks(text)}</div></header>
@@ -73,6 +73,13 @@
     <p><a class="btn ghost sm" href="${R.wishes('imenden')}">Още пожелания за имен ден</a></p>
     <section><h2 style="margin-bottom:10px">${UI.esc(g.title)} през годините</h2><div class="tbl-wrap"><table class="tbl"><thead><tr><th>Година</th><th>Дата</th><th>Ден</th></tr></thead><tbody>${years}</tbody></table></div></section>
     <section><h2 style="margin-bottom:10px">Други имени дни наблизо</h2><div class="chips">${near.map((x) => `<a class="chip" href="${R.group(x.slug)}">${UI.esc(x.title)}</a>`).join('')}</div></section>`,
+  });
+  const nb = document.getElementById('nm-btn');
+  if (nb) nb.addEventListener('click', () => {
+    const more = document.getElementById('nm-more'), open = more.hidden;
+    more.hidden = !open;
+    nb.setAttribute('aria-expanded', String(open));
+    nb.textContent = open ? 'Скрий' : `Покажи всички имена (${nb.dataset.n})`;
   });
   if (location.hash) { const t = document.getElementById(decodeURIComponent(location.hash.slice(1))); if (t) t.scrollIntoView(); }
 })();
