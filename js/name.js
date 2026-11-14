@@ -11,17 +11,18 @@
   // подробна карта само когато има значение на името или други дати; останалите имена са в списъка отгоре
   const info = (n) => ({ others: RT.groupsFor(n).filter((x) => x.slug !== g.slug), meaning: CT.MEANINGS[n] });
   const detailed = g.names.filter((n) => { const i = info(n); return i.meaning || i.others.length; });
-  const nameSec = detailed.map((n) => {
+  const shown = detailed.slice(0, 6);
+  const nameSec = shown.map((n) => {
     const { others, meaning } = info(n);
     const od = others.map((o) => `${BG.fmt(RT.groupDate(o, y))} (<a href="${R.group(o.slug, 'ime-' + RT.slug(n))}">${UI.esc(o.title)}</a>)`).join(', ');
     return `<article id="ime-${RT.slug(n)}" class="name-card"><h3>Имен ден на ${UI.esc(n)}</h3>
       ${od ? `<p>Празнува и на ${od}.</p>` : ''}${meaning ? `<p>${UI.esc(meaning)}</p>` : ''}</article>`;
   }).join('');
-  const chipList = g.names.map((n) => (detailed.includes(n) ? `<a class="chip" href="#ime-${RT.slug(n)}">${UI.esc(n)}</a>` : `<span class="chip" id="ime-${RT.slug(n)}">${UI.esc(n)}</span>`)).join('');
+  const chipList = g.names.map((n) => (shown.includes(n) ? `<a class="chip" href="#ime-${RT.slug(n)}">${UI.esc(n)}</a>` : `<span class="chip" id="ime-${RT.slug(n)}">${UI.esc(n)}</span>`)).join('');
   const custom = CT.CUSTOMS_BY_TITLE[g.title] || '';
   const text = `Честит имен ден! ${g.title} – ${BG.fmt(date)}. Имен ден имат: ${g.names.slice(0, 6).join(', ')}.`;
   const years = BG.YEARS.map((yy) => { const d = RT.groupDate(g, yy); return `<tr><td class="dt">${yy}</td><td>${BG.fmt(d)}, ${BG.WEEKDAYS[d.getDay()]}</td><td>${BG.offName(d) ? 'Почивен ден' : BG.isWeekend(d) ? 'Уикенд' : 'Работен ден'}</td></tr>`; }).join('');
-  const near = RT.GROUPS.filter((x) => x.slug !== g.slug).slice().sort((a, b) => Math.abs(RT.groupDate(a, y) - date) - Math.abs(RT.groupDate(b, y) - date)).slice(0, 6);
+  const near = RT.GROUPS.filter((x) => x.slug !== g.slug).slice().sort((a, b) => Math.abs(RT.groupDate(a, y) - date) - Math.abs(RT.groupDate(b, y) - date)).slice(0, 4);
 
 
   // --- допълнителен, различен за всяка страница текст от данните ---
@@ -43,17 +44,16 @@
   const fast = fastOf(date);
   const around = CT.events(date.getFullYear()).concat(CT.events(date.getFullYear() + 1)).concat(CT.events(date.getFullYear() - 1))
     .filter((e) => !e.types.includes('clock') && !e.types.includes('equinox') && !e.types.includes('fast') && e.title !== g.title && !same(e.date, date))
-    .map((e) => ({ e, diff: Math.round((e.date - date) / 864e5) })).filter((o) => Math.abs(o.diff) <= 14).sort((a, b) => Math.abs(a.diff) - Math.abs(b.diff)).slice(0, 5)
+    .map((e) => ({ e, diff: Math.round((e.date - date) / 864e5) })).filter((o) => Math.abs(o.diff) <= 14).sort((a, b) => Math.abs(a.diff) - Math.abs(b.diff)).slice(0, 3)
     .sort((a, b) => a.diff - b.diff);
   const rel = (n) => (n < 0 ? `${-n} ${-n === 1 ? 'ден' : 'дни'} преди` : `${n} ${n === 1 ? 'ден' : 'дни'} след`);
   const aroundHtml = around.map(({ e, diff }) => `<li><b>${BG.fmt(e.date)}</b> – ${UI.esc(e.title)} (${rel(diff)})</li>`).join('');
   const pool = CT.wishList('imenden', null, 120);
   const gi = RT.GROUPS.findIndex((x) => x.slug === g.slug);
-  const pick = [0, 1].map((k) => pool[(gi * 7 + k * 13) % pool.length]).filter(Boolean);
-  const mixed = new Set(g.names.map((n) => n.charAt(0).toUpperCase())).size;
-  const extraHtml = `<section class="prose"><h2>Кога се пада празникът</h2>
+  const pick = (g.names.length > 12 ? [0] : [0, 1]).map((k) => pool[(gi * 7 + k * 13) % pool.length]).filter(Boolean);
+    const extraHtml = `<section class="prose"><h2>Кога се пада празникът</h2>
     <p>През ${date.getFullYear()} г. ${UI.esc(g.title)} е в ${dayName(date)} и е ${statusOf(date)}. През периода ${BG.YEARS[0]}–${BG.YEARS[BG.YEARS.length - 1]} датата ${g.movable ? 'се мести заедно с Великден и пада в различни дни и месеци' : `остава ${BG.fmt(date)}, но денят от седмицата се сменя`}: ${cnt.w} пъти е в работен ден, ${cnt.we} в уикенд${cnt.off ? ` и ${cnt.off} пъти е официален почивен ден` : ''}.</p>
-    <p>${fast ? `Датата попада в периода на ${fast}, затова трапезата по традиция е постна – без месо, яйца и млечни продукти.` : 'Датата не попада в постен период, затова трапезата може да е обичайната празнична.'} Имен ден празнуват ${g.names.length} ${g.names.length === 1 ? 'име' : 'имена'}, ${mixed === 1 ? 'всички с една и съща начална буква' : `започващи с ${mixed} различни букви`}.</p></section>
+    <p>${fast ? `Датата попада в периода на ${fast}, затова трапезата по традиция е постна – без месо, яйца и млечни продукти.` : 'Датата не попада в постен период, затова трапезата може да е обичайната празнична.'}</p></section>
     ${aroundHtml ? `<section class="prose"><h2>Какво има около този ден</h2><p>Ето най-близките празници и имени дни до ${BG.fmt(date)}:</p><ul>${aroundHtml}</ul></section>` : ''}
     ${pick.length ? `<section class="prose"><h2>Пожелания за имен ден</h2>${pick.map((w) => `<blockquote>${UI.esc(w.t.replace(/\{name\}/g, main1)).replace(/\n/g, '<br>')}</blockquote>`).join('')}</section>` : ''}`;
 
@@ -61,7 +61,7 @@
     title: `Имен ден на ${shortList} – ${g.title}`,
     year: date.getFullYear(), month: date.getMonth(),
     main: `<div class="crumbs"><a href="${R.home()}">Начало</a> / <a href="${R.names()}">Имени дни</a> / ${UI.esc(g.title)}</div>
-    <header class="hero"><h1>${UI.esc(g.title)} – имен ден на ${UI.esc(g.names.slice(0, 4).join(', '))}</h1><p class="answer">${UI.esc(g.title)} е на <b>${BG.fmt(date)} ${date.getFullYear()}</b> (${wd}). Имен ден имат: ${UI.esc(g.names.join(', '))}.</p>
+    <header class="hero"><h1>${UI.esc(g.title)} – имен ден на ${UI.esc(g.names.slice(0, 4).join(', '))}</h1><p class="answer">${UI.esc(g.title)} е на <b>${BG.fmt(date)} ${date.getFullYear()}</b> (${wd}). Имен ден имат: ${UI.esc(g.names.slice(0, 8).join(', '))}${g.names.length > 8 ? ` и още ${g.names.length - 8} имена (вижте списъка по-долу)` : ''}.</p>
       <div class="date-line"><span class="date-pill num">${I.name}${BG.fmt(date)} ${date.getFullYear()}</span><span class="muted">${wd} · ${UI.daysAway(days)}</span></div>
       <div class="chips"><span class="tag name">${I.name}Имен ден</span>${holiday && holiday.type === 'church' ? `<span class="tag church">${I.church}Църковен празник</span>` : ''}${BG.offName(date) ? `<span class="tag dayoff">${I.dayoff}Почивен ден</span>` : ''}</div>
       <div class="share-row"><button class="btn ghost sm" data-copy="${UI.esc(text)}">${I.copy}Копирай поздрав</button>${UI.shareLinks(text)}</div></header>
