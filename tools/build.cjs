@@ -43,13 +43,17 @@ BG.YEARS.forEach((y) => {
 add({ path: 'praznici/', script: 'praznici', type: 'praznici', title: `Празници и почивни дни в България ${today.getFullYear()} | ${SITE}`, desc: 'Официални празници, национални дати, църковни празници и пости в България. Дати и обичаи за всеки празник.', pri: 0.85, crumbs: [['Празници', 'praznici/']] });
 add({ path: 'cherkoven-kalendar/', script: 'praznici', type: 'church', page: { type: 'church' }, title: `Църковен календар ${today.getFullYear()} – празници и пости | ${SITE}`, desc: 'Православен църковен календар: Великден, Цветница, Спасовден, Рождество, Задушници и пости. Дати по години.', pri: 0.75, crumbs: [['Църковен календар', 'cherkoven-kalendar/']] });
 add({ path: 'imeni-dni/', script: 'names', type: 'names', title: `Имени дни – кой има имен ден и кога | ${SITE}`, desc: 'Имени дни в България: Ивановден, Гергьовден, Димитровден, Никулден и още. Намерете кога имате имен ден по име.', pri: 0.8, crumbs: [['Имени дни', 'imeni-dni/']] });
+// Страници за имени дни, индексирани в първата версия на сайта. Останалите (добавени по-късно, с малко търсене и сходен текст)
+// са с noindex, за да не разводняват сайта; връзките към тях работят и Google ги следва. За връщане: INDEX_EXTRA_PAGES = true.
+const INDEX_EXTRA_PAGES = false;
+const ORIG_GROUPS = new Set(['andreevden', 'antonovden', 'arhangelov-den', 'atanasovden', 'blagoveshtenie', 'bogoyavlenie-yordanovden', 'dimitrovden', 'enyovden', 'gergyovden', 'golyama-bogoroditsa', 'ignazhden', 'ilinden', 'ivanovden', 'krastovden', 'lazarovden', 'malka-bogoroditsa', 'nikulden', 'petkovden', 'petrovden', 'rozhdestvo-hristovo', 'simeonovden', 'spasovden', 'sretenie-gospodne', 'stefanovden', 'sv-anna', 'sv-ap-i-evangelist-marko', 'sv-ap-matey', 'sv-boris-mihail', 'sv-chetirideset-machenitsi', 'sv-ekaterina', 'sv-evtimiy', 'sv-haralampiy', 'sv-ivan-rilski', 'sv-kiril-i-metodiy', 'sv-konstantin-i-elena', 'sv-kozma-i-damyan', 'sv-marina', 'sv-mariya-magdalina', 'sv-mina', 'sv-panteleymon', 'sv-sava', 'sv-silvestar', 'sv-sofiya-vyara-nadezhda-i-lyubov', 'sv-spiridon', 'sv-valentin', 'todorovden', 'tomina-nedelya', 'trifon-zarezan', 'trimata-svetiteli', 'tsvetnitsa', 'vasilyovden', 'velikden']);
 RT.GROUPS.forEach((g) => {
   const nm = g.names.slice(0, 3);
   const list = nm.length > 1 ? nm.slice(0, -1).join(', ') + ' и ' + nm[nm.length - 1] : nm[0];
   let y = today.getFullYear(); let d = RT.groupDate(g, y); if (d < sod) d = RT.groupDate(g, ++y);
   const t1 = `Имен ден на ${list} – ${g.title} | ${SITE}`;
   const t2 = `Имен ден на ${list} – ${fmt(d)} | ${SITE}`;
-  add({ path: `imen-den/${g.slug}/`, script: 'name', type: 'group', page: { slug: g.slug }, title: t1.length <= 62 ? t1 : t2, desc: trim(`${g.title} е на ${fmt(d)} ${y}. Имен ден имат ${g.names.slice(0, 8).join(', ')}. Значение на имената, обичаи и пожелания.`, 158), pri: 0.6, crumbs: [['Имени дни', 'imeni-dni/'], [g.title, `imen-den/${g.slug}/`]] });
+  add({ path: `imen-den/${g.slug}/`, script: 'name', type: 'group', page: { slug: g.slug }, title: t1.length <= 62 ? t1 : t2, desc: trim(`${g.title} е на ${fmt(d)} ${y}. Имен ден имат ${g.names.slice(0, 8).join(', ')}. Значение на имената, обичаи и пожелания.`, 158), pri: 0.6, noindex: !INDEX_EXTRA_PAGES && !ORIG_GROUPS.has(g.slug), crumbs: [['Имени дни', 'imeni-dni/'], [g.title, `imen-den/${g.slug}/`]] });
 });
 CT.HOLIDAYS.forEach((h) => {
   let y = today.getFullYear(); if (h.date(y) < sod) y++; if (!BG.YEARS.includes(y)) y = BG.YEARS[0];
@@ -60,7 +64,7 @@ add({ path: 'vakancii/', script: 'vakancii', type: 'vac', title: `Учениче
 const CATSHORT = { fun: 'забавни', colleagues: 'за колеги', family: 'за роднини', friends: 'за приятели', romantic: 'романтични', poem: 'в стихове', short: 'кратки' };
 add({ path: 'pozhelaniya/', script: 'wishes', type: 'wishes', title: `Пожелания и поздравления за всеки повод | ${SITE}`, desc: 'Готови пожелания за имен ден, рожден ден, Коледа, Нова година, 3 март и Великден. Забавни, за колеги, за роднини, в стихове и кратки за Viber.', pri: 0.85, crumbs: [['Пожелания', 'pozhelaniya/']] });
 add({ path: 'pozhelaniya/kartichki/', script: 'cards', type: 'cards', noindex: true, title: `Картички с пожелания – очаквайте скоро | ${SITE}`, desc: 'Картички с пожелания за имен ден, рожден ден, Коледа и Нова година – очаквайте скоро.', pri: 0.1, crumbs: [['Пожелания', 'pozhelaniya/'], ['Картички', 'pozhelaniya/kartichki/']] });
-RT.RECIP.forEach((x) => add({ path: `pozhelaniya/rozhden-den/${x.slug}/`, script: 'wishrec', extra: ['wishdata'], type: 'wish-rec', page: { slug: x.slug }, title: `${x.h1} – кратки и сърдечни | ${SITE}`, desc: trim(x.desc + ' Копирайте и изпратете през Viber или Facebook.', 158), pri: 0.7, crumbs: [['Пожелания', 'pozhelaniya/'], ['Рожден ден', 'pozhelaniya/rozhden-den/'], [x.h1.replace('Пожелания за ', ''), `pozhelaniya/rozhden-den/${x.slug}/`]] }));
+RT.RECIP.forEach((x) => add({ path: `pozhelaniya/rozhden-den/${x.slug}/`, script: 'wishrec', extra: ['wishdata'], type: 'wish-rec', noindex: !INDEX_EXTRA_PAGES, page: { slug: x.slug }, title: `${x.h1} – кратки и сърдечни | ${SITE}`, desc: trim(x.desc + ' Копирайте и изпратете.', 158), pri: 0.7, crumbs: [['Пожелания', 'pozhelaniya/'], ['Рожден ден', 'pozhelaniya/rozhden-den/'], [x.h1.replace('Пожелания за ', ''), `pozhelaniya/rozhden-den/${x.slug}/`]] }));
 Object.entries(RT.OCC_SLUG).forEach(([occ, s]) => {
   const t = CT.WISH_TITLES[occ];
   const cats = Object.keys(CT.CATS).filter((k) => CT.wishList(occ, k).length).map((k) => CATSHORT[k]);
@@ -111,7 +115,7 @@ function shell(p, prerender) {
 <title>${esc(p.title)}</title>
 <meta name="description" content="${esc(p.desc)}">
 <link rel="canonical" href="${url}">
-<meta name="robots" content="${NOINDEX || p.noindex ? 'noindex, nofollow' : 'index, follow, max-image-preview:large'}">
+<meta name="robots" content="${NOINDEX ? 'noindex, nofollow' : p.noindex ? 'noindex, follow' : 'index, follow, max-image-preview:large'}">
 <meta name="theme-color" content="#7c3aed">
 <meta property="og:type" content="website"><meta property="og:site_name" content="${SITE}"><meta property="og:locale" content="bg_BG">
 <meta property="og:title" content="${esc(p.title)}"><meta property="og:description" content="${esc(p.desc)}"><meta property="og:url" content="${url}">
@@ -183,7 +187,7 @@ const MIME = { '.js': 'text/javascript', '.css': 'text/css', '.svg': 'image/svg+
   const AIBOTS = ['OAI-SearchBot', 'ChatGPT-User', 'GPTBot', 'PerplexityBot', 'Perplexity-User', 'ClaudeBot', 'Claude-User', 'Claude-SearchBot', 'Google-Extended', 'Applebot-Extended'];
   fs.writeFileSync(path.join(OUT, 'robots.txt'), NOINDEX ? 'User-agent: *\nDisallow: /\n' : `User-agent: *\nAllow: /\n\n# AI search engines and assistants are allowed\n${AIBOTS.map((x) => `User-agent: ${x}\nAllow: /\n`).join('\n')}\nSitemap: ${abs('sitemap.xml')}\n`);
   if (!NOINDEX) {
-    const sec = (title, filter) => `## ${title}\n` + pages.filter(filter).map((p) => `- [${p.title.replace(` | ${SITE}`, '')}](${abs(p.path)}): ${p.desc}`).join('\n') + '\n';
+    const sec = (title, filter) => `## ${title}\n` + pages.filter((p) => !p.noindex && filter(p)).map((p) => `- [${p.title.replace(` | ${SITE}`, '')}](${abs(p.path)}): ${p.desc}`).join('\n') + '\n';
     fs.writeFileSync(path.join(OUT, 'llms.txt'), `# ${SITE}\n\n> Български справочник за официални празници и почивни дни, църковен календар, имени дни, ученически ваканции и пожелания. Данните са по Кодекса на труда, решенията на Министерския съвет и графика на МОН; обновяваме ги редовно (последна промяна: ${ISO}).\n\n` +
       sec('Почивни дни и мостове', (p) => p.type === 'days') + '\n' + sec('Ученически ваканции', (p) => p.type === 'vac') + '\n' + sec('Инструменти', (p) => p.type === 'tool') + '\n' + sec('Празници', (p) => p.type === 'praznici' || p.type === 'church' || p.type === 'holiday') + '\n' +
       sec('Имени дни', (p) => p.type === 'names' || p.type === 'group') + '\n' + sec('Пожелания', (p) => p.type === 'wishes' || p.type === 'wish-occ' || p.type === 'wish-rec') + '\n' + sec('За сайта', (p) => p.type === 'info'));
