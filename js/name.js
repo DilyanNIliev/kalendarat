@@ -65,6 +65,7 @@
       <div class="date-line"><span class="date-pill num">${I.name}${BG.fmt(date)} ${date.getFullYear()}</span><span class="muted">${wd} · ${UI.daysAway(days)}</span></div>
       <div class="chips"><span class="tag name">${I.name}Имен ден</span>${holiday && holiday.type === 'church' ? `<span class="tag church">${I.church}Църковен празник</span>` : ''}${BG.offName(date) ? `<span class="tag dayoff">${I.dayoff}Почивен ден</span>` : ''}</div>
       <div class="share-row"><button class="btn ghost sm" data-copy="${UI.esc(text)}">${I.copy}Копирай поздрав</button>${UI.shareLinks(text)}</div></header>
+    <section class="prose"><h2>За празника</h2><p>${UI.esc((window.NAME_DESC && window.NAME_DESC[g.title]) || `${g.title} се отбелязва на ${BG.fmt(date)} по църковния календар.`)}</p></section>
     ${holiday ? `<p class="muted">Повече за празника: <a href="${R.holiday(holiday.id)}">${UI.esc(holiday.title)}</a>.</p>` : ''}
     <section><h2 style="margin-bottom:10px">Кой има имен ден</h2><div class="chips">${chipList}</div></section>
     ${nameSec ? `<section><h2 style="margin-bottom:10px">За някои от имената</h2><div class="name-cards">${nameSec}</div></section>` : ''}
