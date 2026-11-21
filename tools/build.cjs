@@ -45,13 +45,15 @@ add({ path: 'cherkoven-kalendar/', script: 'praznici', type: 'church', page: { t
 add({ path: 'imeni-dni/', script: 'names', type: 'names', title: `Имени дни – кой има имен ден и кога | ${SITE}`, desc: 'Имени дни в България: Ивановден, Гергьовден, Димитровден, Никулден и още. Намерете кога имате имен ден по име.', pri: 0.8, crumbs: [['Имени дни', 'imeni-dni/']] });
 // Страниците с пожелания по получател са с noindex (малко съдържание, сходни текстове). За индексиране: INDEX_EXTRA_PAGES = true.
 const INDEX_EXTRA_PAGES = false;
+// Страници за имени дни с 1–2 имена имат малко търсене и сходен текст – с noindex, follow (отварят се нормално). За индексиране: MIN_NAMES_INDEXED = 0.
+const MIN_NAMES_INDEXED = 3;
 RT.GROUPS.forEach((g) => {
   const nm = g.names.slice(0, 3);
   const list = nm.length > 1 ? nm.slice(0, -1).join(', ') + ' и ' + nm[nm.length - 1] : nm[0];
   let y = today.getFullYear(); let d = RT.groupDate(g, y); if (d < sod) d = RT.groupDate(g, ++y);
   const t1 = `Имен ден на ${list} – ${g.title} | ${SITE}`;
   const t2 = `Имен ден на ${list} – ${fmt(d)} | ${SITE}`;
-  add({ path: `imen-den/${g.slug}/`, script: 'name', extra: ['namedesc'], type: 'group', page: { slug: g.slug }, title: t1.length <= 62 ? t1 : t2, desc: trim(`${g.title} е на ${fmt(d)} ${y}. Имен ден имат ${g.names.slice(0, 8).join(', ')}. Значение на имената, обичаи и пожелания.`, 158), pri: 0.6, crumbs: [['Имени дни', 'imeni-dni/'], [g.title, `imen-den/${g.slug}/`]] });
+  add({ path: `imen-den/${g.slug}/`, script: 'name', extra: ['namedesc'], type: 'group', page: { slug: g.slug }, title: t1.length <= 62 ? t1 : t2, desc: trim(`${g.title} е на ${fmt(d)} ${y}. Имен ден имат ${g.names.slice(0, 8).join(', ')}. Значение на имената, обичаи и пожелания.`, 158), pri: 0.6, noindex: g.names.length < MIN_NAMES_INDEXED, crumbs: [['Имени дни', 'imeni-dni/'], [g.title, `imen-den/${g.slug}/`]] });
 });
 CT.HOLIDAYS.forEach((h) => {
   let y = today.getFullYear(); if (h.date(y) < sod) y++; if (!BG.YEARS.includes(y)) y = BG.YEARS[0];
