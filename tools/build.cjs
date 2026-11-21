@@ -43,17 +43,15 @@ BG.YEARS.forEach((y) => {
 add({ path: 'praznici/', script: 'praznici', type: 'praznici', title: `Празници и почивни дни в България ${today.getFullYear()} | ${SITE}`, desc: 'Официални празници, национални дати, църковни празници и пости в България. Дати и обичаи за всеки празник.', pri: 0.85, crumbs: [['Празници', 'praznici/']] });
 add({ path: 'cherkoven-kalendar/', script: 'praznici', type: 'church', page: { type: 'church' }, title: `Църковен календар ${today.getFullYear()} – празници и пости | ${SITE}`, desc: 'Православен църковен календар: Великден, Цветница, Спасовден, Рождество, Задушници и пости. Дати по години.', pri: 0.75, crumbs: [['Църковен календар', 'cherkoven-kalendar/']] });
 add({ path: 'imeni-dni/', script: 'names', type: 'names', title: `Имени дни – кой има имен ден и кога | ${SITE}`, desc: 'Имени дни в България: Ивановден, Гергьовден, Димитровден, Никулден и още. Намерете кога имате имен ден по име.', pri: 0.8, crumbs: [['Имени дни', 'imeni-dni/']] });
-// Страници за имени дни, индексирани в първата версия на сайта. Останалите (добавени по-късно, с малко търсене и сходен текст)
-// са с noindex, за да не разводняват сайта; връзките към тях работят и Google ги следва. За връщане: INDEX_EXTRA_PAGES = true.
+// Страниците с пожелания по получател са с noindex (малко съдържание, сходни текстове). За индексиране: INDEX_EXTRA_PAGES = true.
 const INDEX_EXTRA_PAGES = false;
-const ORIG_GROUPS = new Set(['andreevden', 'antonovden', 'arhangelov-den', 'atanasovden', 'blagoveshtenie', 'bogoyavlenie-yordanovden', 'dimitrovden', 'enyovden', 'gergyovden', 'golyama-bogoroditsa', 'ignazhden', 'ilinden', 'ivanovden', 'krastovden', 'lazarovden', 'malka-bogoroditsa', 'nikulden', 'petkovden', 'petrovden', 'rozhdestvo-hristovo', 'simeonovden', 'spasovden', 'sretenie-gospodne', 'stefanovden', 'sv-anna', 'sv-ap-i-evangelist-marko', 'sv-ap-matey', 'sv-boris-mihail', 'sv-chetirideset-machenitsi', 'sv-ekaterina', 'sv-evtimiy', 'sv-haralampiy', 'sv-ivan-rilski', 'sv-kiril-i-metodiy', 'sv-konstantin-i-elena', 'sv-kozma-i-damyan', 'sv-marina', 'sv-mariya-magdalina', 'sv-mina', 'sv-panteleymon', 'sv-sava', 'sv-silvestar', 'sv-sofiya-vyara-nadezhda-i-lyubov', 'sv-spiridon', 'sv-valentin', 'todorovden', 'tomina-nedelya', 'trifon-zarezan', 'trimata-svetiteli', 'tsvetnitsa', 'vasilyovden', 'velikden']);
 RT.GROUPS.forEach((g) => {
   const nm = g.names.slice(0, 3);
   const list = nm.length > 1 ? nm.slice(0, -1).join(', ') + ' и ' + nm[nm.length - 1] : nm[0];
   let y = today.getFullYear(); let d = RT.groupDate(g, y); if (d < sod) d = RT.groupDate(g, ++y);
   const t1 = `Имен ден на ${list} – ${g.title} | ${SITE}`;
   const t2 = `Имен ден на ${list} – ${fmt(d)} | ${SITE}`;
-  add({ path: `imen-den/${g.slug}/`, script: 'name', type: 'group', page: { slug: g.slug }, title: t1.length <= 62 ? t1 : t2, desc: trim(`${g.title} е на ${fmt(d)} ${y}. Имен ден имат ${g.names.slice(0, 8).join(', ')}. Значение на имената, обичаи и пожелания.`, 158), pri: 0.6, noindex: !INDEX_EXTRA_PAGES && !ORIG_GROUPS.has(g.slug), crumbs: [['Имени дни', 'imeni-dni/'], [g.title, `imen-den/${g.slug}/`]] });
+  add({ path: `imen-den/${g.slug}/`, script: 'name', extra: ['namedesc'], type: 'group', page: { slug: g.slug }, title: t1.length <= 62 ? t1 : t2, desc: trim(`${g.title} е на ${fmt(d)} ${y}. Имен ден имат ${g.names.slice(0, 8).join(', ')}. Значение на имената, обичаи и пожелания.`, 158), pri: 0.6, crumbs: [['Имени дни', 'imeni-dni/'], [g.title, `imen-den/${g.slug}/`]] });
 });
 CT.HOLIDAYS.forEach((h) => {
   let y = today.getFullYear(); if (h.date(y) < sod) y++; if (!BG.YEARS.includes(y)) y = BG.YEARS[0];
@@ -91,7 +89,7 @@ const esc = (s) => String(s).replace(/&/g, '&amp;').replace(/"/g, '&quot;').repl
 const LIBS = ['holidays', 'namedays', 'content', 'routes', 'common', 'widgets', 'season'];
 const bundle = LIBS.map((f) => `/* ${f}.js */\n` + read(`js/${f}.js`)).join('\n');
 fs.writeFileSync(path.join(ROOT, 'js/bundle.js'), bundle);
-const ver = crypto.createHash('md5').update(bundle + read('css/style.css') + pages.map((p) => read(`js/${p.script}.js`)).join('') + read('js/wishdata.js')).digest('hex').slice(0, 8);
+const ver = crypto.createHash('md5').update(bundle + read('css/style.css') + pages.map((p) => read(`js/${p.script}.js`) + (p.extra || []).map((e) => read(`js/${e}.js`)).join('')).join('') + read('js/wishdata.js')).digest('hex').slice(0, 8);
 const abs = (p) => ORIGIN + '/' + p;
 const ISO = today.toISOString().slice(0, 10);
 const UPDATED = `${today.getDate()} ${BG.MONTHS_GEN[today.getMonth()]} ${today.getFullYear()}`;
